@@ -103,8 +103,7 @@ function initializeSession(request: FastifyRequest) {
 export function startServer(configuration: Configuration, server: HttpServer) {
   server.listen({
     port: configuration.http.port,
-    // TODO : Do not use port for now due to a proxy issues.
-    // host: configuration.http.host,
+    host: configuration.http.host,
   }, function (error) {
     if (error) {
       server.log.error(error);

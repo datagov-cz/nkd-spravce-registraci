@@ -19,7 +19,7 @@ export async function createHttpServer(
   const server = Fastify({
     loggerInstance: logger,
     // For development.
-    disableRequestLogging: true,
+    disableRequestLogging: configuration.development,
     // From https://www.npmjs.com/package/@fastify/session
     // If you are terminating HTTPs at the reverse proxy, you need to add
     // the trustProxy setting to your fastify instance if you want to use

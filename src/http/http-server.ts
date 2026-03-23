@@ -63,7 +63,7 @@ export async function createHttpServer(
   });
 
   server.addHook("onRequest", (request, reply, next) =>
-    mockedAuthenticationMiddleware(
+    authenticationMiddleware(
       configuration, authentication, request, reply, next));
 
   server.addHook("preHandler", (_request, _reply, next) => {
@@ -104,26 +104,6 @@ function authenticationMiddleware(
     return;
   }
   request.user = data;
-  next();
-}
-
-function mockedAuthenticationMiddleware(
-  _configuration: Configuration,
-  _authentication: HttpAuthentication,
-  request: FastifyRequest,
-  _reply: FastifyReply,
-  next: HookHandlerDoneFunction,
-) {
-  request.user = {
-    login: "petr_skoda",
-    givenName: "Petr",
-    familyName: "Škoda",
-    isEditor: true,
-    entity: {
-      identifier: "70890692",
-      name: "Moravskoslezský kraj",
-    }
-  } as AuthenticationData;
   next();
 }
 

@@ -12,6 +12,7 @@ import { handleDatasetUpdateGet } from "./dataset-update";
 import { handleDatasetDeleteGet } from "./dataset-delete";
 import { handleDashboardPost } from "./dashboard/dashboard-presenter";
 import { RegistrationRepository } from "../registration";
+import { handleRegistrationGet } from "./registration";
 
 const routes = Object.freeze({
   CatalogCreate: "/formulář/registrace-lokálního-katalogu",
@@ -39,6 +40,12 @@ export function registerRoutes(
     method: "POST",
     url: "/",
     handler: (req, res) => handleDashboardPost(repository, req, res),
+  });
+
+  server.route({
+    method: "GET",
+    url: "/detail-registrace",
+    handler: (req, res) => handleRegistrationGet(repository, req, res),
   });
 
   return;

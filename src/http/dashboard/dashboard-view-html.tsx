@@ -18,7 +18,7 @@ function HomeView({ state }: { state: DashboardState }) {
         <h2>Registrační záznamy</h2>
         {messages.map(item => (
           <li>
-            {item.label} <br/>
+            <a href={"./detail-registrace?id=" + encodeURIComponent(item.identifier)}>{item.label}</a> <br/>
             Identifikátor záznamu: {item.identifier} <br/>
             Záznam vytvořen: {item.createdAt.toISOString()} <br/>
             Druh záznamu: {item.type}

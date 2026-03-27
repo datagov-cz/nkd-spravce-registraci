@@ -19,7 +19,9 @@ export async function handleRegistrationPost(
   } else if (contentType === "application/json") {
     // Fastify parse JSON by default.
     // We need to get the string back.
-    attachment = JSON.stringify(request.body);
+    // The content must be in "formData" property.
+    // https://github.com/datagov-cz/nkd-formulare?tab=readme-ov-file#using-returnurl-to-post-data-to-an-url-of-choice
+    attachment = JSON.stringify((request.body as any)["formData"]);
   } else if (contentType.startsWith("multipart/form-data")) {
     attachment = await readMultipart(request);
   }

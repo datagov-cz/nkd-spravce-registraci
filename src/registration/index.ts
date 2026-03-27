@@ -1,2 +1,2 @@
 export * from "./registration-model";
-export * from "./registration-repository";
+export * from "./registration-service";

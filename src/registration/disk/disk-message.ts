@@ -1,4 +1,10 @@
-import { createResourceCollector, createResourceReader, createStringN3RdfReader, RdfBuilder, ResourceReader } from "../../rdf";
+import {
+  createResourceCollector,
+  createResourceReader,
+  createStringN3RdfReader,
+  RdfBuilder,
+  ResourceReader,
+} from "../../rdf";
 
 export async function parseDiskMessage(
   content: string,

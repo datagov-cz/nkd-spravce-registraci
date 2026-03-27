@@ -1,28 +1,25 @@
 import { DiskRepository } from "./disk";
 import { IsdsRepository } from "./isds";
-import { RegistrationEntry } from "./registration-model";
+import { Registration, RegistrationItem } from "./registration-model";
 
-export function createRegistrationRepository(
+export function createRegistrationService(
   isds: IsdsRepository,
   disk: DiskRepository,
-): RegistrationRepository {
-  return new DefaultRegistrationRepository(isds, disk);
+): RegistrationService {
+  return new DefaultRegistrationService(isds, disk);
 }
 
-export interface RegistrationRepository {
+export interface RegistrationService {
+
+  readRegistration(
+    organization: string,
+    identifier: string,
+  ): Promise<Registration | null>;
 
   /**
    * @returns All entries for given organization.
    */
-  listRegistrations(organization: string): RegistrationEntry[];
-
-  /**
-   * @returns Content of given message's attachment or null.
-   */
-  readAttachment(
-    organization: string,
-    identifier: string,
-  ): Promise<string | null>;
+  listRegistrations(organization: string): RegistrationItem[];
 
   /**
    * @returns Identifier of the newly created registration entry.
@@ -31,7 +28,7 @@ export interface RegistrationRepository {
     organization: string,
     username: string,
     attachment: string,
-  ): Promise<RegistrationEntry>
+  ): Promise<RegistrationItem>
 
   /**
    * Run synchronize content with storage.
@@ -40,7 +37,7 @@ export interface RegistrationRepository {
 
 }
 
-class DefaultRegistrationRepository implements RegistrationRepository {
+class DefaultRegistrationService implements RegistrationService {
 
   readonly isds: IsdsRepository;
 
@@ -51,24 +48,24 @@ class DefaultRegistrationRepository implements RegistrationRepository {
     this.disk = disk;
   }
 
-  listRegistrations(organization: string): RegistrationEntry[] {
+  async readRegistration(
+    organization: string, identifier: string,
+  ): Promise<Registration | null> {
+    return await this.isds.readRegistration(organization, identifier) ??
+      await this.disk.readRegistration(organization, identifier) ??
+      null;
+  }
+
+  listRegistrations(organization: string): RegistrationItem[] {
     return [
       ...this.isds.listRegistrations(organization),
       ...this.disk.listRegistrations(organization),
     ];
   }
 
-  async readAttachment(
-    organization: string, identifier: string,
-  ): Promise<string | null> {
-    return await this.isds.readAttachment(organization, identifier) ??
-      await this.disk.readAttachment(organization, identifier) ??
-      null;
-  }
-
   async createRegistration(
     organization: string, username: string, attachment: string,
-  ): Promise<RegistrationEntry> {
+  ): Promise<RegistrationItem> {
     return this.disk.createRegistration(organization, username, attachment);
   }
 

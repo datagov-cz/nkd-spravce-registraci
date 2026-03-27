@@ -2,7 +2,11 @@ import { RppService } from "../../rpp";
 import { FileSystemService } from "../../file-system";
 import { logger } from "../../application";
 import { LanguageString } from "../../rdf";
-import { RegistrationEntry, RegistrationSourceType } from "../registration-model";
+import {
+  Registration,
+  RegistrationItem,
+  RegistrationSource,
+} from "../registration-model";
 import { parseIsdsAttachment } from "./isds-attachment";
 import { parseIsdsMessage } from "./isds-message";
 
@@ -18,18 +22,15 @@ export function createIsdsRepository(
 
 export interface IsdsRepository {
 
+  readRegistration(
+    organization: string,
+    identifier: string,
+  ): Promise<Registration | null>;
+
   /**
    * @returns All entries for given organization.
    */
-  listRegistrations(organization: string): RegistrationEntry[];
-
-  /**
-   * @returns Content of given message's attachment or null.
-   */
-  readAttachment(
-    organization: string,
-    identifier: string,
-  ): Promise<string | null>;
+  listRegistrations(organization: string): RegistrationItem[];
 
   /**
    * Run synchronize content with storage.
@@ -43,7 +44,7 @@ export interface IsdsRepository {
  */
 class DefaultIsdsRepository implements IsdsRepository {
 
-  readonly messages: RegistrationEntry[] = [];
+  readonly messages: RegistrationItem[] = [];
 
   readonly fileSystem: FileSystemService;
 
@@ -65,20 +66,23 @@ class DefaultIsdsRepository implements IsdsRepository {
     this.attachmentsPath = attachmentsPath;
   }
 
-  listRegistrations(organization: string): RegistrationEntry[] {
-    return this.messages.filter(item => item.organization === organization);
-  }
-
-  async readAttachment(
+  async readRegistration(
     organization: string,
     identifier: string,
-  ): Promise<string | null> {
+  ): Promise<Registration | null> {
     const entry = this.messages.find(item =>
       item.organization === organization && item.identifier === identifier);
     if (entry === undefined) {
       return null;
     }
-    return await this.fileSystem.readFile(entry.attachmentPath);
+    return {
+      ...entry,
+      attachmentContent: await this.fileSystem.readFile(entry.attachmentPath),
+    };
+  }
+
+  listRegistrations(organization: string): RegistrationItem[] {
+    return this.messages.filter(item => item.organization === organization);
   }
 
   async synchronize(): Promise<void> {
@@ -96,13 +100,13 @@ class DefaultIsdsRepository implements IsdsRepository {
         }
       } catch (error) {
         logger.warn(
-          { message: messagePath, error: (error as Error).message},
+          { message: messagePath, error: (error as Error).message },
           "Failed to process a message.");
       }
     }
   }
 
-  private async loadMessage(messagePath: string): Promise<RegistrationEntry> {
+  private async loadMessage(messagePath: string): Promise<RegistrationItem> {
     // Read message.
     const messageContent = await this.fileSystem.readFile(messagePath);
     const message = await parseIsdsMessage(messageContent);
@@ -144,7 +148,7 @@ class DefaultIsdsRepository implements IsdsRepository {
     //
     return {
       type: attachment.type,
-      source: RegistrationSourceType.ISDS,
+      source: RegistrationSource.ISDS,
       createdAt: message.receivedAt,
       identifier: "isds-" + message.messageIdentifier,
       organization,

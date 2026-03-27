@@ -1,9 +1,21 @@
 import { FileSystemService } from "../../file-system";
-import { createStatementRdfBuilder, createStringN3RdfWriter, LanguageString } from "../../rdf";
+import {
+  createStatementRdfBuilder,
+  createStringN3RdfWriter,
+  LanguageString,
+} from "../../rdf";
 import { parseIsdsAttachment } from "../isds";
 import { IsdsAttachment } from "../isds/isds-attachment";
-import { RegistrationEntry, RegistrationSourceType } from "../registration-model";
-import { DiskMessage, parseDiskMessage, writeDiskMessage } from "./disk-message";
+import {
+  Registration,
+  RegistrationItem,
+  RegistrationSource,
+} from "../registration-model";
+import {
+  DiskMessage,
+  parseDiskMessage,
+  writeDiskMessage,
+} from "./disk-message";
 import { logger } from "../../application";
 
 export function createDiskRepository(
@@ -17,18 +29,15 @@ export function createDiskRepository(
 
 export interface DiskRepository {
 
+  readRegistration(
+    organization: string,
+    identifier: string,
+  ): Promise<Registration | null>;
+
   /**
    * @returns All entries for given organization.
    */
-  listRegistrations(organization: string): RegistrationEntry[];
-
-  /**
-   * @returns Content of given message's attachment or null.
-   */
-  readAttachment(
-    organization: string,
-    identifier: string,
-  ): Promise<string | null>;
+  listRegistrations(organization: string): RegistrationItem[];
 
   /**
    * @returns Identifier of the newly created registration entry.
@@ -37,7 +46,7 @@ export interface DiskRepository {
     organization: string,
     username: string,
     attachment: string,
-  ): Promise<RegistrationEntry>
+  ): Promise<RegistrationItem>
 
   /**
    * Run synchronize content with storage.
@@ -48,7 +57,7 @@ export interface DiskRepository {
 
 class DefaultDiskRepository implements DiskRepository {
 
-  readonly messages: RegistrationEntry[] = [];
+  readonly messages: RegistrationItem[] = [];
 
   readonly fileSystem: FileSystemService;
 
@@ -66,27 +75,30 @@ class DefaultDiskRepository implements DiskRepository {
     this.attachmentsPath = attachmentsPath;
   }
 
-  listRegistrations(organization: string): RegistrationEntry[] {
-    return this.messages.filter(item => item.organization === organization);
-  }
-
-  async readAttachment(
+  async readRegistration(
     organization: string,
     identifier: string,
-  ): Promise<string | null> {
+  ): Promise<Registration | null> {
     const entry = this.messages.find(item =>
       item.organization === organization && item.identifier === identifier);
     if (entry === undefined) {
       return null;
     }
-    return await this.fileSystem.readFile(entry.attachmentPath);
+    return {
+      ...entry,
+      attachmentContent: await this.fileSystem.readFile(entry.attachmentPath),
+    };
+  }
+
+  listRegistrations(organization: string): RegistrationItem[] {
+    return this.messages.filter(item => item.organization === organization);
   }
 
   async createRegistration(
     organization: string,
     username: string,
     attachmentContent: string,
-  ): Promise<RegistrationEntry> {
+  ): Promise<RegistrationItem> {
     const attachment = await parseIsdsAttachment(attachmentContent);
     if (attachment === null) {
       throw new Error("Invalid attachment.");
@@ -145,7 +157,7 @@ class DefaultDiskRepository implements DiskRepository {
     }
   }
 
-  private async loadMessage(messagePath: string): Promise<RegistrationEntry> {
+  private async loadMessage(messagePath: string): Promise<RegistrationItem> {
     // Read message.
     const messageContent = await this.fileSystem.readFile(messagePath);
     const message = await parseDiskMessage(messageContent);
@@ -170,7 +182,7 @@ function createRegistrationEntry(
   attachmentsPath: string,
   message: DiskMessage,
   attachment: IsdsAttachment,
-): RegistrationEntry {
+): RegistrationItem {
   // Prepare label.
   let label: LanguageString = {};
   if (attachment.label === null) {
@@ -187,7 +199,7 @@ function createRegistrationEntry(
     identifier: message.identifier,
     organization: message.organization,
     createdAt: message.createdAt,
-    source: RegistrationSourceType.RegistrationManager,
+    source: RegistrationSource.RegistrationManager,
     type: attachment.type,
     label,
     attachmentPath: attachmentsPath + "/" + message.attachmentFileName,

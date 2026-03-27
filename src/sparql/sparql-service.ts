@@ -5,7 +5,9 @@ export function createSparqlService(): SparqlService {
 
 export interface SparqlService {
 
-  executeSelect(endpoint: string, query: string): Promise<SparqlSelectResult[]>;
+  executeSelect(
+    endpoint: string, query: string,
+  ): Promise<SparqlSelectResult[]>;
 
 }
 
@@ -21,12 +23,12 @@ class DefaultSparqlService {
     endpoint: string, query: string,
   ): Promise<SparqlSelectResult[]> {
     const response = await fetch(endpoint, {
-      "headers": {
+      method: "POST",
+      headers: {
         "accept": "application/sparql-results+json,*/*;q=0.9",
         "content-type": "application/x-www-form-urlencoded",
       },
-      "body": "query=" + encodeURI(query),
-      "method": "POST"
+      body: "query=" + encodeURI(query),
     });
     const content = await response.json();
     return content.results.bindings;

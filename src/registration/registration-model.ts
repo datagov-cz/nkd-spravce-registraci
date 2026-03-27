@@ -1,14 +1,23 @@
 
-export interface RegistrationEntry {
+export interface Registration extends RegistrationItem {
+
+  /**
+   * Content of the attachment.
+   */
+  attachmentContent: string;
+
+}
+
+export interface RegistrationItem {
 
   identifier: string;
 
   /**
    * Where is the registration record from.
    */
-  source: RegistrationSourceType;
+  source: RegistrationSource;
 
-  type: RegistrationEntryType;
+  type: RegistrationType;
 
   /**
    * When was the entry created in the system.
@@ -29,12 +38,12 @@ export interface RegistrationEntry {
 
 }
 
-export enum RegistrationSourceType {
+export enum RegistrationSource {
   ISDS = "isds",
   RegistrationManager = "registration-manager",
 }
 
-export enum RegistrationEntryType {
+export enum RegistrationType {
   CreateDataset = "create-dataset",
   WithdrawDataset = "withdraw-dataset",
   CreateCatalog = "create-catalog",

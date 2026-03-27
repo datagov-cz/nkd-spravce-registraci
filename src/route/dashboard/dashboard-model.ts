@@ -1,4 +1,4 @@
-import { RegistrationEntryType } from "../../registration";
+import { RegistrationSource, RegistrationType } from "../../registration";
 
 export interface DashboardState {
 
@@ -16,6 +16,12 @@ export interface DashboardState {
 
   };
 
+  datasetRegistrationUrl: string;
+
+  catalogRegistrationUrl: string;
+
+  registrationUploadUrl: string;
+
   messages: MessageItem[];
 
 }
@@ -27,8 +33,12 @@ export interface MessageItem {
 
   label: string;
 
-  type: RegistrationEntryType;
+  source: RegistrationSource;
+
+  type: RegistrationType;
 
   createdAt: Date;
+
+  detailUrl: string;
 
 }

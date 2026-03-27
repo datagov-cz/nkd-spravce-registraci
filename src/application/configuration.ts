@@ -13,6 +13,18 @@ const ConfigurationSchema = z.object({
    * True when in a development mode.
    */
   development: z.boolean(),
+  /**
+   * Configuration of authentication.
+   */
+  authentication: z.object({
+    /**
+     * When true use mock authentication.
+     * This is available only for development,
+     * do not use in a production.
+     */
+    useMock: z.boolean()
+
+  }),
   forms: z.object({
     /**
      * URL of the dcat-ap-forms service, see
@@ -82,8 +94,11 @@ const createConfiguration = (): Configuration => {
   const env = process.env;
   return ConfigurationSchema.parse({
     development: env.NODE_ENV === "development",
+    authentication: {
+      useMock: env.AUTHENTICATION_USE_MOCK_DANGER === "yes",
+    },
     forms: {
-      proxyUrl: "http://localhost:8057",
+      proxyUrl: env.FORMS_URL,
     },
     http: {
       port: Number(env.HTTP_PORT),

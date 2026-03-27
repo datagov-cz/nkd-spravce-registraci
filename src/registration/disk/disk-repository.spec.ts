@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { mockFileSystemService } from "../../file-system";
 import {
-  RegistrationEntryType,
-  RegistrationSourceType,
+  RegistrationType,
+  RegistrationSource,
 } from "../registration-model";
 import { createDiskRepository } from "./disk-repository";
 
@@ -35,16 +35,17 @@ describe("createDiskRepository", () => {
     // Read and check basics of the dataset.
 
     const dataset = registrations[0];
-    expect(dataset.source).toBe(RegistrationSourceType.RegistrationManager);
-    expect(dataset.type).toBe(RegistrationEntryType.CreateDataset);
+    expect(dataset.source).toBe(RegistrationSource.RegistrationManager);
+    expect(dataset.type).toBe(RegistrationType.CreateDataset);
     expect(dataset.label).toStrictEqual({
       "cs": "Úřední deska státního úřadu"
     });
 
     // Try to load the attachment.
-
-    expect(await repository.readAttachment("17651921", dataset.identifier))
-      .toStrictEqual(content);
+    const actual = await repository.readRegistration(
+      "17651921", dataset.identifier);
+    expect(actual).not.toBeNull();
+    expect(actual?.attachmentContent).toStrictEqual(content);
   });
 
   it("Synchronization test I.", async () => {

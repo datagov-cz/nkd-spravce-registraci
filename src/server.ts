@@ -1,19 +1,15 @@
 import { configuration } from "./application/configuration";
-import { createForms } from "./dcat-ap-forms";
+import { createAuthenticationService, createMockAuthenticationService } from "./authentication";
 import { createFileSystemService } from "./file-system";
-import { createHttpServer, registerRoutes, startServer } from "./http";
-import { createHttpAuthentication } from "./http/http-authentication";
-import { createRegistrationRepository } from "./registration";
+import { createHttpServer, startServer } from "./http";
+import { createRegistrationService } from "./registration";
 import { createDiskRepository } from "./registration/disk";
 import { createIsdsRepository } from "./registration/isds/isds-repository";
+import { createRouteService, registerRoutes } from "./route";
 import { createRppService } from "./rpp";
 import { createSparqlService } from "./sparql";
 
 (async function main(configuration) {
-  const authentication = createHttpAuthentication();
-  const forms = createForms(configuration);
-  const httpServer = await createHttpServer(configuration, authentication);
-
   const sparql = createSparqlService();
   const fileSystem = createFileSystemService();
   const rpp = createRppService(sparql, configuration.rpp.sparql);
@@ -21,19 +17,28 @@ import { createSparqlService } from "./sparql";
   const isdsRepository = createIsdsRepository(
     fileSystem, rpp,
     configuration.isds.messagesPath,
-    configuration.isds.attachmentsPath,
-  );
+    configuration.isds.attachmentsPath);
 
   const diskRepository = createDiskRepository(
     fileSystem,
     configuration.repository.messagesPath,
-    configuration.repository.attachmentsPath,
-  )
+    configuration.repository.attachmentsPath);
 
-  const repository = createRegistrationRepository(
+  const repository = createRegistrationService(
     isdsRepository, diskRepository);
 
-  registerRoutes(httpServer, forms, repository);
+  const useMockAuthentication =
+    configuration.authentication.useMock && configuration.development;
+  const authentication = useMockAuthentication ?
+    createMockAuthenticationService() :
+    createAuthenticationService();
+
+  const route = createRouteService(
+    configuration.http.baseUrl,
+    configuration.forms.proxyUrl);
+  const httpServer = await createHttpServer(
+    configuration, authentication);
+  registerRoutes(configuration, httpServer, repository, route);
 
   await repository.synchronize();
 

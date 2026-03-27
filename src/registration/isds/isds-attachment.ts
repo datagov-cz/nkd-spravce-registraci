@@ -5,7 +5,7 @@ import {
   LanguageString,
   SubjectReader,
 } from "../../rdf";
-import { RegistrationEntryType } from "../registration-model";
+import { RegistrationType } from "../registration-model";
 
 export async function parseIsdsAttachment(
   content: string,
@@ -44,7 +44,7 @@ export async function parseIsdsAttachment(
 
 export interface IsdsAttachment {
 
-  type: RegistrationEntryType;
+  type: RegistrationType;
 
   iri: string | null;
 
@@ -54,7 +54,7 @@ export interface IsdsAttachment {
 
 function parseWithdrawDataset(dataset: SubjectReader): IsdsAttachment {
   return {
-    type: RegistrationEntryType.WithdrawDataset,
+    type: RegistrationType.WithdrawDataset,
     iri: dataset.identifier().value,
     label: null,
   }
@@ -62,7 +62,7 @@ function parseWithdrawDataset(dataset: SubjectReader): IsdsAttachment {
 
 function parseCreateDataset(dataset: SubjectReader): IsdsAttachment {
   return {
-    type: RegistrationEntryType.CreateDataset,
+    type: RegistrationType.CreateDataset,
     iri: null,
     label: dataset.languageString(VOCABULARY.title),
   }
@@ -70,7 +70,7 @@ function parseCreateDataset(dataset: SubjectReader): IsdsAttachment {
 
 function parseWithdrawCatalog(catalog: SubjectReader): IsdsAttachment {
   return {
-    type: RegistrationEntryType.WithdrawCatalog,
+    type: RegistrationType.WithdrawCatalog,
     iri: catalog.identifier().value,
     label: null,
   }
@@ -78,7 +78,7 @@ function parseWithdrawCatalog(catalog: SubjectReader): IsdsAttachment {
 
 function parseCreateCatalog(catalog: SubjectReader): IsdsAttachment {
   return {
-    type: RegistrationEntryType.CreateDataset,
+    type: RegistrationType.CreateDataset,
     iri: null,
     label: catalog.languageString(VOCABULARY.title),
   }

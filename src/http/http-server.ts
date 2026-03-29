@@ -8,6 +8,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session"
 import fastifyHelmet from "@fastify/helmet"
 import fastifyMultipart from "@fastify/multipart";
+import fastifyFormBody from "@fastify/formbody";
 
 import { logger } from "../application/logger";
 import { Configuration } from "../application/configuration";
@@ -45,6 +46,9 @@ export async function createHttpServer(
 
   // Cookies - https://www.npmjs.com/package/@fastify/cookie
   server.register(fastifyCookie);
+
+  // x-www-form-urlencoded - https://github.com/fastify/fastify-formbody
+  server.register(fastifyFormBody)
 
   // Sessions - https://www.npmjs.com/package/@fastify/session
   server.register(fastifySession, {

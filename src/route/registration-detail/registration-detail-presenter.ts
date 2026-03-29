@@ -1,9 +1,10 @@
 import { type FastifyReply, type FastifyRequest } from "fastify";
-import { renderRegistrationViewHtml } from "./registration-detail-view-html";
-import { type RegistrationState } from "./registration-detail-model";
+import { RegistrationDetailGetState } from "./registration-detail-model";
 import { RegistrationService } from "../../registration";
 import { HttpStatusCode } from "../../http";
 import { RouteService } from "../route-service";
+import { createLayoutState } from "../../components";
+import { renderRegistrationDetailGetViewHtml } from "./registration-detail-view-html";
 
 export async function handleRegistrationDetailGet(
   repository: RegistrationService,
@@ -22,21 +23,20 @@ export async function handleRegistrationDetailGet(
   }
 
   // Create state ...
-  const state: RegistrationState = {
-    user: {
-      name: `${user.familyName} ${user.givenName}`,
-      logout: route.caaisLogout(),
+  const state: RegistrationDetailGetState = {
+    layout: {
+      ...createLayoutState(route, user),
+      listRegistrationActive: true,
     },
-    organization: {
-      name: user.entity.name,
-    },
-    dashboardUrl: route.dashboard(),
-    registration,
-    attachment: registration.attachmentContent,
+    registrationLabel: registration.label["cs"],
+    registrationSource: registration.source,
+    registrationType: registration.type,
+    attachmentContent: registration.attachmentContent,
+    registrationListUrl: route.listRegistration(),
   };
 
   response
     .code(HttpStatusCode.Ok)
     .type("text/html")
-    .send(renderRegistrationViewHtml(state));
+    .send(renderRegistrationDetailGetViewHtml(state));
 }

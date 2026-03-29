@@ -40,7 +40,9 @@ import { createSparqlService } from "./sparql";
     configuration, authentication);
   registerRoutes(configuration, httpServer, repository, route);
 
-  await repository.synchronize();
+  // This is asynchronous.
+  // We can start server without the data.
+  repository.synchronize();
 
   startServer(configuration, httpServer);
 })(configuration);

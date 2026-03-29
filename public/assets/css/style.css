@@ -1,0 +1,27 @@
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1rem;
+    margin-bottom: .75rem;
+    word-wrap: break-word;
+}
+
+.registrations-list li {
+    padding-bottom: 1em;
+}
+
+.registration-detail {
+    word-break: break-all;
+}
+
+/*  */
+
+.flex  {
+    display: flex;
+}
+
+.justify-around {
+    justify-content: space-around;
+}
+
+.flex-col {
+    flex-direction: column;
+}

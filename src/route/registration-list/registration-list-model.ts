@@ -1,31 +1,13 @@
+import { LayoutState } from "../../components";
 import { RegistrationSource, RegistrationType } from "../../registration";
 
-export interface DashboardState {
+export interface RegistrationListGetState {
 
-  user : {
-
-    name: string;
-
-    logout: string;
-
-  };
-
-  organization: {
-
-    name: string;
-
-  };
-
-  datasetRegistrationUrl: string;
-
-  catalogRegistrationUrl: string;
-
-  registrationUploadUrl: string;
+  layout: LayoutState;
 
   messages: MessageItem[];
 
 }
-
 
 export interface MessageItem {
 

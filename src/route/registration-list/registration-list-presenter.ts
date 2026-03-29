@@ -1,11 +1,13 @@
 import { type FastifyReply, type FastifyRequest } from "fastify";
-import { renderDashboardViewHtml } from "./dashboard-view-html";
-import { type DashboardState } from "./dashboard-model";
+
 import { RegistrationItem, RegistrationService } from "../../registration";
 import { AuthenticationData } from "../../authentication";
 import { RouteService } from "../route-service";
+import { createLayoutState } from "../../components";
+import { RegistrationListGetState } from "./registration-list-model";
+import { renderRegistrationListGetViewHtml } from "./registration-list-view-html";
 
-export function handleDashboardGet(
+export function handleRegistrationListGet(
   repository: RegistrationService,
   route: RouteService,
   request: FastifyRequest,
@@ -17,25 +19,19 @@ export function handleDashboardGet(
   response
     .code(200)
     .type("text/html")
-    .send(renderDashboardViewHtml(state));
+    .send(renderRegistrationListGetViewHtml(state));
 }
 
 function createState(
   route: RouteService,
   user: AuthenticationData,
   messages: RegistrationItem[],
-): DashboardState {
+): RegistrationListGetState {
   return {
-    user: {
-      name: `${user.familyName} ${user.givenName}`,
-      logout: route.caaisLogout(),
+    layout: {
+      ...createLayoutState(route, user),
+      listRegistrationActive: true,
     },
-    organization: {
-      name: user.entity.name,
-    },
-    datasetRegistrationUrl: route.formsRegisterDataset(),
-    catalogRegistrationUrl: route.formsRegisterCatalog(),
-    registrationUploadUrl: route.createRegistrationCallback(),
     messages: messages.map(message => ({
       identifier: message.identifier,
       label: message.label["cs"],

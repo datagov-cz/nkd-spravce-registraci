@@ -1,63 +1,22 @@
 
-export function createRouteService(
-  baseUrl: string, formsUrl: string,
-): RouteService {
-  return new DefaultRouteService(baseUrl, formsUrl);
+export function createRouteService(baseUrl: string): RouteService {
+  return new RouteService(baseUrl);
 }
 
-export interface RouteService {
+export class RouteService {
 
-  dashboard(): string;
+  private readonly baseUrl: string;
 
-  /**
-   * Use for route registration.
-   */
-  dashboardInternal(): string;
-
-  createRegistrationCallback(): string;
-
-  createRegistrationCallbackInternal(): string;
-
-  registrationDetail(identifier: string): string;
-
-  /**
-   * Use for route registration.
-   */
-  registrationDetailInternal(): string;
-
-  caaisLogout(): string;
-
-  formsRegisterDataset(): string;
-
-  formsRegisterCatalog(): string;
-
-}
-
-class DefaultRouteService implements RouteService {
-
-  readonly baseUrl: string;
-
-  readonly formsUrl: string;
-
-  constructor(baseUrl: string, formsPublicBaseUrl: string) {
+  constructor(baseUrl: string) {
     this.baseUrl = asBase(baseUrl);
-    this.formsUrl = asBase(formsPublicBaseUrl);
   }
 
-  dashboard(): string {
-    return this.baseUrl + this.dashboardInternal();
+  listRegistration(): string {
+    return this.baseUrl + this.listRegistrationInternal();
   }
 
-  dashboardInternal(): string {
-    return "/";
-  }
-
-  createRegistrationCallback(): string {
-    return this.baseUrl + this.createRegistrationCallbackInternal();
-  }
-
-  createRegistrationCallbackInternal(): string {
-    return "/vložit-registrační-záznam";
+  listRegistrationInternal(): string {
+    return "/registrační-záznamy"
   }
 
   registrationDetail(identifier: string): string {
@@ -69,18 +28,26 @@ class DefaultRouteService implements RouteService {
     return "/detail-registračního-záznamu";
   }
 
+  createRegistration(): string {
+    return this.baseUrl + this.createRegistrationInternal();
+  }
+
+  createRegistrationInternal(): string {
+    return "/vložení-registračního-záznamu";
+  }
+
   caaisLogout(): string {
     return "/caais/logout?redirect-url=/";
   }
 
-  formsRegisterDataset(): string {
-    return this.formsUrl + "/registrace-datové-sady?returnUrl="
-      + encodeURIComponent(this.createRegistrationCallback());
+  registerDatasetForm(): string {
+    return this.baseUrl + "/formulář/registrace-datové-sady?returnUrl="
+      + encodeURIComponent(this.createRegistration());
   }
 
-  formsRegisterCatalog(): string {
-    return this.formsUrl + "/registrace-lokálního-katalogu?returnUrl="
-      + encodeURIComponent(this.createRegistrationCallback());
+  registerCatalogForm(): string {
+    return this.baseUrl + "/formulář/registrace-lokálního-katalogu?returnUrl="
+      + encodeURIComponent(this.createRegistration());
   }
 
 }

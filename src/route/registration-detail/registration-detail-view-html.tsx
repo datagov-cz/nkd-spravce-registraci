@@ -1,23 +1,39 @@
-import { renderToHtml, HtmlLayout } from "../../html";
-import { type RegistrationState } from "./registration-detail-model";
+import { Layout } from "../../components";
+import { renderToHtml } from "../../html";
+import { RegistrationDetailGetState } from "./registration-detail-model";
 
-export function renderRegistrationViewHtml(state: RegistrationState) {
-  return renderToHtml(<HomeView state={state} />, false);
+export function renderRegistrationDetailGetViewHtml(
+  state: RegistrationDetailGetState,
+) {
+  return renderToHtml(<RegistrationDetailGetViewHtml state={state} />, false);
 }
 
-function HomeView({ state }: { state: RegistrationState }) {
+function RegistrationDetailGetViewHtml(
+  { state }: { state: RegistrationDetailGetState },
+) {
   return (
-    <HtmlLayout
+    <Layout
       language="cs"
-      title="Přehled registrací"
-      user={state.user}
-      organization={state.organization}
+      title="Detail registrace"
+      state={state.layout}
     >
-      <section>
-        <h2>Detail registračního záznamu</h2>
-        <pre><code>{state.attachment}</code></pre>
-        <a href={state.dashboardUrl}>Zpět na přehled registrací</a>
-      </section>
-    </HtmlLayout>
+      <h2>
+        Detail registračního záznamu
+        {/*
+          &nbsp;
+          <gov-tooltip message="Stažení registračního záznamu">
+            <gov-button variant="secondary" type="link">
+              <gov-icon name="download"></gov-icon>
+            </gov-button>
+          </gov-tooltip>
+          */}
+      </h2>
+      <code class="registration-detail">
+        {state.attachmentContent}
+      </code>
+      <br />
+      <br />
+      <a href={state.registrationListUrl}>Zpět na seznam registrací</a>
+    </Layout>
   )
 }

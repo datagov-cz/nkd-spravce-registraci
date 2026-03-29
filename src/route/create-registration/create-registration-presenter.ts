@@ -2,8 +2,34 @@ import { type FastifyReply, type FastifyRequest } from "fastify";
 import { RegistrationService } from "../../registration";
 import { RouteService } from "../route-service";
 import { HttpStatusCode } from "../../http";
+import { renderCreateRegistrationGetViewHtml } from "./create-registration-view-html";
+import { createLayoutState } from "../../components";
+import { CreateRegistrationGetState } from "./create-registration-model";
 
-export async function handleRegistrationPost(
+export async function handleCreateRegistrationGet(
+  route: RouteService,
+  request: FastifyRequest,
+  response: FastifyReply,
+) {
+  const user = request.user;
+
+  const state: CreateRegistrationGetState = {
+    layout: {
+      ...createLayoutState(route, user),
+      createRegistrationActive: true,
+    },
+    datasetRegistrationUrl: route.registerDatasetForm(),
+    catalogRegistrationUrl: route.registerCatalogForm(),
+    registrationUploadUrl: route.createRegistration(),
+  };
+
+  response
+    .code(HttpStatusCode.Ok)
+    .type("text/html")
+    .send(renderCreateRegistrationGetViewHtml(state));
+}
+
+export async function handleCreateRegistrationPost(
   repository: RegistrationService,
   route: RouteService,
   request: FastifyRequest,
@@ -17,6 +43,7 @@ export async function handleRegistrationPost(
     response.code(HttpStatusCode.BadRequest).send();
     return;
   } else if (contentType === "application/json") {
+    // TODO Remove this once the forms application is updated.
     // Fastify parse JSON by default.
     // We need to get the string back.
     // The content must be in "formData" property.
@@ -24,9 +51,11 @@ export async function handleRegistrationPost(
     attachment = JSON.stringify((request.body as any)["formData"]);
   } else if (contentType.startsWith("multipart/form-data")) {
     attachment = await readMultipart(request);
+  } else if (contentType === "application/x-www-form-urlencoded") {
+    attachment = (request.body as any).formData;
   }
 
-  if (attachment === null) {
+  if (attachment === null || attachment === undefined) {
     response.code(HttpStatusCode.BadRequest).send();
     return;
   }
@@ -35,12 +64,10 @@ export async function handleRegistrationPost(
     user.entity.identifier, user.login, attachment);
 
   // We need to encode the value for a redirect.
-  response.redirect(encodeURI(route.dashboard()));
+  response.redirect(encodeURI(route.listRegistration()));
 }
 
-async function readMultipart(
-  request: FastifyRequest,
-): Promise<string | null> {
+async function readMultipart(request: FastifyRequest): Promise<string | null> {
   const file = await request.file();
   if (file === undefined) {
     return null;

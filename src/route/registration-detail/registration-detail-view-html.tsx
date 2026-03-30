@@ -1,4 +1,4 @@
-import { Layout } from "../../components";
+import { HeaderBranding, HeaderNavigation, Layout } from "../../components";
 import { renderToHtml } from "../../html";
 import { RegistrationDetailGetState } from "./registration-detail-model";
 
@@ -12,28 +12,22 @@ function RegistrationDetailGetViewHtml(
   { state }: { state: RegistrationDetailGetState },
 ) {
   return (
-    <Layout
-      language="cs"
-      title="Detail registrace"
-      state={state.layout}
-    >
-      <h2>
-        Detail registračního záznamu
-        {/*
-          &nbsp;
-          <gov-tooltip message="Stažení registračního záznamu">
-            <gov-button variant="secondary" type="link">
-              <gov-icon name="download"></gov-icon>
-            </gov-button>
-          </gov-tooltip>
-          */}
-      </h2>
-      <code class="registration-detail">
-        {state.attachmentContent}
-      </code>
-      <br />
-      <br />
-      <a href={state.registrationListUrl}>Zpět na seznam registrací</a>
+    <Layout language="cs" title="Detail registrace">
+      <header class="gov-header">
+        <gov-container>
+          <HeaderBranding state={state.branding} />
+          <HeaderNavigation state={state.navigation} />
+        </gov-container>
+      </header>
+      <gov-container>
+        <h2>Detail registračního záznamu</h2>
+        <code class="registration-detail">
+          {state.attachmentContent}
+        </code>
+        <br />
+        <br />
+        <a href={state.registrationListUrl}>Zpět na seznam registrací</a>
+      </gov-container>
     </Layout>
   )
 }

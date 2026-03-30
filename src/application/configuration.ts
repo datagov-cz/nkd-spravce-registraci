@@ -25,6 +25,15 @@ const ConfigurationSchema = z.object({
     useMock: z.boolean()
 
   }),
+  /**
+   * Authorization once user is authenticated.
+   */
+  authorization: z.object({
+    /**
+     * Required activity code to work with this application.
+     */
+    requiredActivityRoleCode: z.string(),
+  }),
   forms: z.object({
     /**
      * URL of the dcat-ap-forms service, see
@@ -96,6 +105,9 @@ const createConfiguration = (): Configuration => {
     development: env.NODE_ENV === "development",
     authentication: {
       useMock: env.AUTHENTICATION_USE_MOCK_DANGER === "yes",
+    },
+    authorization: {
+      requiredActivityRoleCode: env.AUTHORIZATION_ACTIVITY_CODE_ROLE_EDITOR,
     },
     forms: {
       proxyUrl: env.FORMS_URL,

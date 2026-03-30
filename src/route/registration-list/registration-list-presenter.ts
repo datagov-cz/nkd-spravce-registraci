@@ -3,7 +3,7 @@ import { type FastifyReply, type FastifyRequest } from "fastify";
 import { RegistrationItem, RegistrationService } from "../../registration";
 import { AuthenticationData } from "../../authentication";
 import { RouteService } from "../route-service";
-import { createLayoutState } from "../../components";
+import { createHeaderBrandingState, createHeaderNavigationState } from "../../components";
 import { RegistrationListGetState } from "./registration-list-model";
 import { renderRegistrationListGetViewHtml } from "./registration-list-view-html";
 
@@ -28,8 +28,9 @@ function createState(
   messages: RegistrationItem[],
 ): RegistrationListGetState {
   return {
-    layout: {
-      ...createLayoutState(route, user),
+    branding: createHeaderBrandingState(route, user),
+    navigation: {
+      ...createHeaderNavigationState(route),
       listRegistrationActive: true,
     },
     messages: messages.map(message => ({

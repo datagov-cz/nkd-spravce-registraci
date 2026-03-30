@@ -31,13 +31,13 @@ import { createSparqlService } from "./sparql";
     configuration.authentication.useMock && configuration.development;
   const authentication = useMockAuthentication ?
     createMockAuthenticationService() :
-    createAuthenticationService();
+    createAuthenticationService(
+      configuration.authorization.requiredActivityRoleCode);
 
   const route = createRouteService(
-    configuration.http.baseUrl,
-    configuration.forms.proxyUrl);
+    configuration.http.baseUrl);
   const httpServer = await createHttpServer(
-    configuration, authentication);
+    configuration, authentication, route);
   registerRoutes(configuration, httpServer, repository, route);
 
   // This is asynchronous.

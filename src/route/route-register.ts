@@ -8,6 +8,8 @@ import { Configuration } from "../application";
 import { handleRegistrationListGet } from "./registration-list";
 import { handleRegistrationDetailGet } from "./registration-detail";
 import { handleCreateRegistrationGet, handleCreateRegistrationPost } from "./create-registration";
+import { handleUnauthorized } from "./unauthorized";
+import { FastifyReply, FastifyRequest } from "fastify";
 
 export function registerRoutes(
   configuration: Configuration,
@@ -21,7 +23,6 @@ export function registerRoutes(
     method: "GET",
     url: "/",
     handler: (_, res) => {
-      // Redirect.
       res.redirect(encodeURI(route.listRegistration()));
     },
   });
@@ -29,28 +30,29 @@ export function registerRoutes(
   server.route({
     method: "GET",
     url: route.listRegistrationInternal(),
-    handler: (req, res) => handleRegistrationListGet(
-      repository, route, req, res),
+    handler: checkRole(route, (req, res) => handleRegistrationListGet(
+      repository, route, req, res)),
   });
 
   server.route({
     method: "GET",
     url: route.registrationDetailInternal(),
-    handler: (req, res) => handleRegistrationDetailGet(
-      repository, route, req, res),
+    handler: checkRole(route, (req, res) => handleRegistrationDetailGet(
+      repository, route, req, res)),
   });
 
   server.route({
     method: "GET",
     url: route.createRegistrationInternal(),
-    handler: (req, res) => handleCreateRegistrationGet(route, req, res),
+    handler: checkRole(route, (req, res) => handleCreateRegistrationGet(
+      route, req, res)),
   });
 
   server.route({
     method: "POST",
     url: route.createRegistrationInternal(),
-    handler: (req, res) => handleCreateRegistrationPost(
-      repository, route, req, res),
+    handler: checkRole(route, (req, res) => handleCreateRegistrationPost(
+      repository, route, req, res)),
   });
 
   server.register(fastifyProxy, {
@@ -59,6 +61,25 @@ export function registerRoutes(
     httpMethods: ["GET"],
   });
 
+}
+
+function checkRole(
+  route: RouteService,
+  handler: (
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) => void,
+) {
+  return (
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) => {
+    if (request.user.isAuthorized) {
+      handler(request, reply);
+    } else {
+      handleUnauthorized(route, request, reply);
+    }
+  }
 }
 
 function registerAssetsRoutes(server: HttpServer) {

@@ -3,7 +3,7 @@ import { RegistrationService } from "../../registration";
 import { RouteService } from "../route-service";
 import { HttpStatusCode } from "../../http";
 import { renderCreateRegistrationGetViewHtml } from "./create-registration-view-html";
-import { createLayoutState } from "../../components";
+import { createHeaderBrandingState, createHeaderNavigationState } from "../../components";
 import { CreateRegistrationGetState } from "./create-registration-model";
 
 export async function handleCreateRegistrationGet(
@@ -14,8 +14,9 @@ export async function handleCreateRegistrationGet(
   const user = request.user;
 
   const state: CreateRegistrationGetState = {
-    layout: {
-      ...createLayoutState(route, user),
+    branding: createHeaderBrandingState(route, user),
+    navigation: {
+      ...createHeaderNavigationState(route),
       createRegistrationActive: true,
     },
     datasetRegistrationUrl: route.registerDatasetForm(),

@@ -1,8 +1,10 @@
-import { LayoutState } from "../../components";
+import { HeaderBrandingState, HeaderNavigationState } from "../../components";
 
 export interface CreateRegistrationGetState {
 
-  layout: LayoutState;
+  branding: HeaderBrandingState;
+
+  navigation: HeaderNavigationState;
 
   datasetRegistrationUrl: string;
 

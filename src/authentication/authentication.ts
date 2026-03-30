@@ -1,6 +1,8 @@
 
-export function createAuthenticationService(): AuthenticationService {
-  return new HttpAuthentication();
+export function createAuthenticationService(
+  requiredActivityRoleCode: string,
+): AuthenticationService {
+  return new HttpAuthentication(requiredActivityRoleCode);
 }
 
 export interface AuthenticationService {
@@ -19,7 +21,10 @@ export interface AuthenticationData {
 
   givenName: string;
 
-  isEditor: boolean;
+  /**
+   * True when user is authorized to work with this application.
+   */
+  isAuthorized: boolean;
 
   entity: {
 
@@ -34,6 +39,12 @@ export interface AuthenticationData {
 class HttpAuthentication implements AuthenticationService {
 
   private readonly headerName = "x-caais-token";
+
+  private readonly requiredActivityRoleCode: string;
+
+  constructor(requiredActivityRoleCode: string) {
+    this.requiredActivityRoleCode = requiredActivityRoleCode;
+  }
 
   authenticateHttp(
     headers: { [name: string]: string | string[] | undefined },
@@ -51,11 +62,13 @@ class HttpAuthentication implements AuthenticationService {
       if (user === undefined || entity === undefined) {
         return null;
       }
+      const isAuthorized = (user.activity_role_codes ?? [])
+        .includes(this.requiredActivityRoleCode);
       return {
         login: user.username,
         givenName: user.given_name,
         familyName: user.family_name,
-        isEditor: user.roles.includes("EDITOR"),
+        isAuthorized,
         entity: {
           identifier: entity.public_identifier,
           name: entity.name,
@@ -80,7 +93,7 @@ export function createMockAuthenticationService(): AuthenticationService {
         login: "mock-login",
         givenName: "mock-given-name",
         familyName: "mock-family-name",
-        isEditor: true,
+        isAuthorized: false,
         entity: {
           identifier: "70890692",
           name: "Moravskoslezský kraj",

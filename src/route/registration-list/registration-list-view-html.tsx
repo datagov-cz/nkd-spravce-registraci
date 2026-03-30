@@ -1,4 +1,4 @@
-import { Layout } from "../../components";
+import { HeaderBranding, HeaderNavigation, Layout } from "../../components";
 import { renderToHtml } from "../../html";
 import { MessageItem, RegistrationListGetState } from "./registration-list-model";
 
@@ -13,27 +13,30 @@ function RegistrationListGetViewHtml(
 ) {
   const { messages } = state;
   return (
-    <Layout
-      language="cs"
-      title="Přehled registrací"
-      state={state.layout}
-    >
-      <h2>Přehled registračních záznamů</h2>
-      <ul class="registrations-list">
-        {messages.sort(dateDescending).map(item => (
-          <li>
-            <a href={item.detailUrl}>{item.label}</a> <br />
-            Záznam vytvořen v
-            <time datetime={item.createdAt.toISOString()}>
-              {item.createdAt.toLocaleString("cs-CZ", {
-                dateStyle: "full",
-                timeStyle: "short",
-              })}
-            </time>
-            {/* Druh záznamu: {item.type} */}
-          </li>
-        ))}
-      </ul>
+    <Layout language="cs" title="Přehled registrací">
+      <header class="gov-header">
+        <gov-container>
+          <HeaderBranding state={state.branding} />
+          <HeaderNavigation state={state.navigation} />
+        </gov-container>
+      </header>
+      <gov-container>
+        <h2>Přehled registračních záznamů</h2>
+        <ul class="registrations-list">
+          {messages.sort(dateDescending).map(item => (
+            <li>
+              <a href={item.detailUrl}>{item.label}</a> <br />
+              Záznam vytvořen v
+              <time datetime={item.createdAt.toISOString()}>
+                {item.createdAt.toLocaleString("cs-CZ", {
+                  dateStyle: "full",
+                  timeStyle: "short",
+                })}
+              </time>
+            </li>
+          ))}
+        </ul>
+      </gov-container>
     </Layout>
   )
 }

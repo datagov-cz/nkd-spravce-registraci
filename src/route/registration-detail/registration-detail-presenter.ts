@@ -3,8 +3,8 @@ import { RegistrationDetailGetState } from "./registration-detail-model";
 import { RegistrationService } from "../../registration";
 import { HttpStatusCode } from "../../http";
 import { RouteService } from "../route-service";
-import { createLayoutState } from "../../components";
 import { renderRegistrationDetailGetViewHtml } from "./registration-detail-view-html";
+import { createHeaderBrandingState, createHeaderNavigationState } from "../../components";
 
 export async function handleRegistrationDetailGet(
   repository: RegistrationService,
@@ -24,8 +24,9 @@ export async function handleRegistrationDetailGet(
 
   // Create state ...
   const state: RegistrationDetailGetState = {
-    layout: {
-      ...createLayoutState(route, user),
+    branding: createHeaderBrandingState(route, user),
+    navigation: {
+      ...createHeaderNavigationState(route),
       listRegistrationActive: true,
     },
     registrationLabel: registration.label["cs"],

@@ -1,9 +1,11 @@
-import { LayoutState } from "../../components";
+import { HeaderBrandingState, HeaderNavigationState } from "../../components";
 import { RegistrationSource, RegistrationType } from "../../registration";
 
 export interface RegistrationDetailGetState {
 
-  layout: LayoutState;
+  branding: HeaderBrandingState;
+
+  navigation: HeaderNavigationState;
 
   registrationLabel: string;
 

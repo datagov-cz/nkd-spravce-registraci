@@ -17,10 +17,12 @@ import {
   AuthenticationData,
   AuthenticationService,
 } from "../authentication/authentication";
+import { RouteService } from "../route";
 
 export async function createHttpServer(
   configuration: Configuration,
   authentication: AuthenticationService,
+  route: RouteService,
 ): Promise<HttpServer> {
 
   const server = Fastify({

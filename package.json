@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "tsx ./src/server.ts",
+    "dev": "nodemon ./src/server.ts",
     "test": "tsc && node --import tsx --test",
     "lint": "eslint . --fix"
   },

@@ -25,6 +25,7 @@ export interface RegistrationService {
    * @returns Identifier of the newly created registration entry.
    */
   createRegistration(
+    createdAt: number,
     organization: string,
     username: string,
     attachment: string,
@@ -64,9 +65,11 @@ class DefaultRegistrationService implements RegistrationService {
   }
 
   async createRegistration(
+    createdAt: number,
     organization: string, username: string, attachment: string,
   ): Promise<RegistrationItem> {
-    return this.disk.createRegistration(organization, username, attachment);
+    return this.disk.createRegistration(
+      createdAt, organization, username, attachment);
   }
 
   async synchronize(): Promise<void> {

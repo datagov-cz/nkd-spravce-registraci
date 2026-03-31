@@ -47,25 +47,43 @@ function CreateRegistrationGetViewHtml(
         <br />
         <hr />
         <br />
-        {/* We do not use gov-tile as the content is not interactive. */}
         <section style="padding: 0 1.5rem 1.5rem 1.5rem">
           <div>
             <span class="gov-tile__title">
               <h3 slot="title">Registrační záznam ze souboru</h3>
             </span>
             <div>
+              <p>
+                Záznamy lze vkládat i ze souborů.
+                Soubory získáte vyplněním příslušných formulářů NKOD pro editaci či smazání datové sady či katalogu.
+                Lze použít i pro nahrání ručně připravených záznamů pro novou datovou sadu či katalog.
+              </p>
               <form method="post"
                 action={state.registrationUploadUrl}
                 enctype="multipart/form-data"
               >
-                <div class="flex flex-col" style="gap: 1.0em;" >
-                  <label for="file">Záznamy lze vkládat i ze souborů. Soubory získáte vyplněním příslušných formulářů NKOD pro editaci či smazání datové sady či katalogu. Lze použít i pro nahrání ručně připravených záznamů pro novou datovou sadu či katalog.</label>
-                  <input type="file" id="file" name="file" accept="text/plain, .jsonld, .json" required />
-                </div>
-                <br />
+              <gov-form-control>
+                <gov-form-label size="s" slot="top">
+                  Nahrát registrační záznam
+                </gov-form-label>
+                <gov-form-group>
+                  <gov-form-file accept="text/plain,.jsonld,.json" name="file" multiple required expanded>
+                  <p>
+                    Přetáhněte soubor nebo
+                  </p>
+                  <p>
+                    <gov-button variant="primary" type="outlined">
+                    Nahrajte ze zařízení
+                    </gov-button>
+                  </p>
+                  </gov-form-file>
+                </gov-form-group>
+              </gov-form-control>
+              <div class="flex justify-end pt-4">
                 <gov-button variant="primary" type="outlined" native-type="submit">
                   Vložit záznam
                 </gov-button>
+              </div>
               </form>
             </div>
           </div>

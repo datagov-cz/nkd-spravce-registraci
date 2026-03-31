@@ -37,41 +37,60 @@ export async function handleCreateRegistrationPost(
   response: FastifyReply,
 ) {
   const user = request.user;
-  const contentType = request.headers["content-type"];
-
-  let attachment: string | null = null;
-  if (contentType === undefined) {
+  const attachments = await readAttachments(request);
+  if (attachments.length === 0) {
     response.code(HttpStatusCode.BadRequest).send();
     return;
+  }
+
+  // For each attachment we create a new registration record.
+  const now = Date.now();
+  for (const attachment of attachments) {
+    await repository.createRegistration(
+      now, user.entity.identifier, user.login, attachment);
+  }
+
+  // We need to encode the value for a redirect.
+  response.redirect(encodeURI(route.listRegistration()));
+}
+
+/**
+ * @param request
+ * @returns All attachments as strings.
+ */
+async function readAttachments(request: FastifyRequest,) {
+  const contentType = request.headers["content-type"];
+  if (contentType === undefined) {
+    return [];
   } else if (contentType === "application/json") {
     // TODO Remove this once the forms application is updated.
     // Fastify parse JSON by default.
     // We need to get the string back.
     // The content must be in "formData" property.
     // https://github.com/datagov-cz/nkd-formulare?tab=readme-ov-file#using-returnurl-to-post-data-to-an-url-of-choice
-    attachment = JSON.stringify((request.body as any)["formData"]);
+    return [JSON.stringify((request.body as any)["formData"])];
   } else if (contentType.startsWith("multipart/form-data")) {
-    attachment = await readMultipart(request);
+    return await readMultipart(request);
   } else if (contentType === "application/x-www-form-urlencoded") {
-    attachment = (request.body as any).formData;
+    return [(request.body as any).formData];
+  } else {
+    return [];
   }
-
-  if (attachment === null || attachment === undefined) {
-    response.code(HttpStatusCode.BadRequest).send();
-    return;
-  }
-
-  await repository.createRegistration(
-    user.entity.identifier, user.login, attachment);
-
-  // We need to encode the value for a redirect.
-  response.redirect(encodeURI(route.listRegistration()));
 }
 
-async function readMultipart(request: FastifyRequest): Promise<string | null> {
-  const file = await request.file();
-  if (file === undefined) {
-    return null;
+/**
+ * @param request
+ * @returns All files in the request.
+ */
+async function readMultipart(request: FastifyRequest): Promise<string[]> {
+  const result: string[] = [];
+  const parts = request.files()
+  for await (const part of parts) {
+    if (part.type !== "file") {
+      continue;
+    }
+    const content = (await part.toBuffer()).toString();
+    result.push(content);
   }
-  return (await file.toBuffer()).toString("utf-8");
+  return result;
 }

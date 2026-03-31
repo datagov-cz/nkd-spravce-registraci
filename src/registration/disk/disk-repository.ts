@@ -43,6 +43,7 @@ export interface DiskRepository {
    * @returns Identifier of the newly created registration entry.
    */
   createRegistration(
+    createdAt: number,
     organization: string,
     username: string,
     attachment: string,
@@ -64,6 +65,13 @@ class DefaultDiskRepository implements DiskRepository {
   readonly messagesPath: string;
 
   readonly attachmentsPath: string;
+
+  /**
+   * We know we run as a single application.
+   * We use this to number new registrations.
+   * Combined with time-based identifier it should be fine.
+   */
+  counter: number = 0;
 
   constructor(
     fileSystem: FileSystemService,
@@ -95,6 +103,7 @@ class DefaultDiskRepository implements DiskRepository {
   }
 
   async createRegistration(
+    createdAt: number,
     organization: string,
     username: string,
     attachmentContent: string,
@@ -104,8 +113,7 @@ class DefaultDiskRepository implements DiskRepository {
       throw new Error("Invalid attachment.");
     }
     //
-    const createdAt = Date.now();
-    const identifier = "registration-manager-" + createdAt.toString();
+    const identifier = this.createIdentifier(createdAt);
     const attachmentFileName = identifier + ".jsonld";
     // Write attachment
     const attachmentPath = this.attachmentsPath + "/" + attachmentFileName;
@@ -134,6 +142,11 @@ class DefaultDiskRepository implements DiskRepository {
       this.attachmentsPath, message, attachment);
     this.messages.push(entry);
     return entry;
+  }
+
+  private createIdentifier(createdAt: number): string {
+    let counter = String(++this.counter).padStart(3, "0");
+    return "registration-manager-" + createdAt.toString() + "-" + counter;
   }
 
   async synchronize(): Promise<void> {
@@ -175,7 +188,6 @@ class DefaultDiskRepository implements DiskRepository {
     }
     return createRegistrationEntry(this.attachmentsPath, message, attachment);
   }
-
 }
 
 function createRegistrationEntry(

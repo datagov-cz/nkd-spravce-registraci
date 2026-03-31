@@ -93,7 +93,7 @@ export function createMockAuthenticationService(): AuthenticationService {
         login: "mock-login",
         givenName: "mock-given-name",
         familyName: "mock-family-name",
-        isAuthorized: false,
+        isAuthorized: true,
         entity: {
           identifier: "70890692",
           name: "Moravskoslezský kraj",

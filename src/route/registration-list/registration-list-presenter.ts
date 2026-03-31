@@ -33,6 +33,7 @@ function createState(
       ...createHeaderNavigationState(route),
       listRegistrationActive: true,
     },
+    createRegistrationUrl: route.createRegistration(),
     messages: messages.map(message => ({
       identifier: message.identifier,
       label: message.label["cs"],

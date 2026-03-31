@@ -7,6 +7,8 @@ export interface RegistrationListGetState {
 
   navigation: HeaderNavigationState;
 
+  createRegistrationUrl: string;
+
   messages: MessageItem[];
 
 }

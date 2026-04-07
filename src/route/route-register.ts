@@ -59,6 +59,10 @@ export function registerRoutes(
     upstream: configuration.forms.proxyUrl,
     prefix: "/formulář/",
     httpMethods: ["GET"],
+    preRewrite(url) {
+      // We get the forms ASCII encoded.
+      return url.replace("/formul%C3%A1%C5%99/", "");
+    }
   });
 
 }

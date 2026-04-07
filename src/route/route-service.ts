@@ -19,6 +19,11 @@ export class RouteService {
     return "/registrační-záznamy"
   }
 
+  listRegistrationWithPage(page: number): string {
+    return this.baseUrl + this.listRegistrationInternal()
+      + "?strana=" + encodeURIComponent(String(page));
+  }
+
   registrationDetail(identifier: string): string {
     return this.baseUrl + this.registrationDetailInternal()
       + "?identifikátor=" + encodeURIComponent(identifier);

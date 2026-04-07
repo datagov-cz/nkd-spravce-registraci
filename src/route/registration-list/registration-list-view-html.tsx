@@ -1,6 +1,6 @@
 import { HeaderBranding, HeaderNavigation, Layout } from "../../components";
 import { renderToHtml } from "../../html";
-import { MessageItem, RegistrationListGetState } from "./registration-list-model";
+import { MessageItem, PaginationState, RegistrationListGetState } from "./registration-list-model";
 
 export function renderRegistrationListGetViewHtml(
   state: RegistrationListGetState,
@@ -21,9 +21,16 @@ function RegistrationListGetViewHtml(
       </header>
       <gov-container>
         <h2>Přehled registračních záznamů</h2>
-        {state.messages.length === 0 ? (
+        {state.messages.length === 0 && state.pagination.currentPage === 1 ? (
           <EmptyRegistrationList state={state} />
-        ) : <RegistrationList messages={state.messages} />}
+        ) : (
+          <>
+            <RegistrationList messages={state.messages} />
+            {state.pagination.totalPages > 1 && (
+              <Pagination pagination={state.pagination} />
+            )}
+          </>
+        )}
       </gov-container>
     </Layout>
   )
@@ -46,7 +53,7 @@ function RegistrationList({ messages }: {
 }) {
   return (
     <ul class="registrations-list">
-      {messages.sort(dateDescending).map(item => (
+      {messages.map(item => (
         <li>
           <a href={item.detailUrl}>{item.label}</a> <br />
           Záznam vytvořen v
@@ -62,6 +69,13 @@ function RegistrationList({ messages }: {
   );
 }
 
-function dateDescending(left: MessageItem, right: MessageItem) {
-  return right.createdAt.getTime() - left.createdAt.getTime();
+function Pagination({ pagination }: { pagination: PaginationState }) {
+  const { prevPageUrl, nextPageUrl, currentPage, totalPages } = pagination;
+  return (
+    <nav aria-label="Stránkování" style="display: flex; gap: 1rem; margin-top: 1rem; align-items: center;">
+      {prevPageUrl && <a href={prevPageUrl}>← Předchozí</a>}
+      <span>Strana {currentPage} z {totalPages}</span>
+      {nextPageUrl && <a href={nextPageUrl}>Další →</a>}
+    </nav>
+  );
 }

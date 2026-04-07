@@ -39,12 +39,16 @@ export interface IsdsRepository {
 
 }
 
-/**
- * TODO : We need to introduce an index file to not load all messages every time.
- */
 class DefaultIsdsRepository implements IsdsRepository {
 
   readonly messages: RegistrationItem[] = [];
+
+  /**
+   * Paths of message files that have been successfully loaded.
+   * ISDS messages are immutable after creation, so already-loaded files
+   * are skipped on subsequent synchronizations.
+   */
+  readonly processedFiles = new Set<string>();
 
   readonly fileSystem: FileSystemService;
 
@@ -88,16 +92,13 @@ class DefaultIsdsRepository implements IsdsRepository {
   async synchronize(): Promise<void> {
     const files = await this.fileSystem.readDirectory(this.messagesPath);
     for (const messagePath of files) {
+      if (this.processedFiles.has(messagePath)) {
+        continue;
+      }
       try {
         const message = await this.loadMessage(messagePath);
-        // This can be slow once there are many messages.
-        const index = this.messages.findIndex(
-          item => item.identifier === message.identifier);
-        if (index === -1) {
-          this.messages.push(message);
-        } else {
-          this.messages[index] = message;
-        }
+        this.messages.push(message);
+        this.processedFiles.add(messagePath);
       } catch (error) {
         logger.warn(
           { message: messagePath, error: (error as Error).message },

@@ -2,6 +2,7 @@ import { configuration } from "./application/configuration";
 import { createAuthenticationService, createMockAuthenticationService } from "./authentication";
 import { createFileSystemService } from "./file-system";
 import { createHttpServer, startServer } from "./http";
+import { logger } from "./application";
 import { createRegistrationService } from "./registration";
 import { createDiskRepository } from "./registration/disk";
 import { createIsdsRepository } from "./registration/isds/isds-repository";
@@ -40,9 +41,20 @@ import { createSparqlService } from "./sparql";
     configuration, authentication, route);
   registerRoutes(configuration, httpServer, repository, route);
 
-  // This is asynchronous.
-  // We can start server without the data.
-  repository.synchronize();
+  // Initial synchronization — non-blocking, server can start without data.
+  isdsRepository.synchronize().catch((error) => {
+    logger.error({ error }, "ISDS initial synchronization failed.");
+  });
+
+  // Periodic synchronization.
+  const syncIntervalMs = configuration.isds.syncIntervalSeconds * 1_000;
+  if (syncIntervalMs > 0) {
+    setInterval(() => {
+      isdsRepository.synchronize().catch((error) => {
+        logger.error({ error }, "ISDS periodic synchronization failed.");
+      });
+    }, syncIntervalMs);
+  }
 
   startServer(configuration, httpServer);
 })(configuration);

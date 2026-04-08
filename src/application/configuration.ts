@@ -78,6 +78,11 @@ const ConfigurationSchema = z.object({
      * Path to directory with ISDS attachments.
      */
     attachmentsPath: z.string(),
+    /**
+     * Interval in seconds between automatic ISDS synchronizations.
+     * Set to 0 to disable periodic sync. Defaults to 60.
+     */
+    syncIntervalSeconds: z.coerce.number().nonnegative().default(60),
   }),
   repository: z.object({
     /**
@@ -122,6 +127,7 @@ const createConfiguration = (): Configuration => {
     isds: {
       messagesPath: resolvePath(env.ISDS_MESSAGES),
       attachmentsPath: resolvePath(env.ISDS_ATTACHMENTS),
+      syncIntervalSeconds: env.ISDS_SYNC_INTERVAL,
     },
     repository: {
       messagesPath: resolvePath(env.REPOSITORY_MESSAGES),

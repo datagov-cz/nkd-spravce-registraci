@@ -1,6 +1,6 @@
 import { HeaderBranding, HeaderNavigation, Layout } from "../../components";
 import { renderToHtml } from "../../html";
-import { MessageItem, RegistrationListGetState } from "./registration-list-model";
+import { MessageItem, PaginationState, RegistrationListGetState } from "./registration-list-model";
 
 export function renderRegistrationListGetViewHtml(
   state: RegistrationListGetState,
@@ -21,9 +21,14 @@ function RegistrationListGetViewHtml(
       </header>
       <gov-container>
         <h2>Přehled registračních záznamů</h2>
-        {state.messages.length === 0 ? (
+        {state.messages.length === 0 && state.pagination.currentPage === 1 ? (
           <EmptyRegistrationList state={state} />
-        ) : <RegistrationList messages={state.messages} />}
+        ) : (
+          <>
+            <RegistrationList messages={state.messages} />
+            <Pagination pagination={state.pagination} />
+          </>
+        )}
       </gov-container>
     </Layout>
   )
@@ -46,7 +51,7 @@ function RegistrationList({ messages }: {
 }) {
   return (
     <ul class="registrations-list">
-      {messages.sort(dateDescending).map(item => (
+      {messages.map(item => (
         <li>
           <a href={item.detailUrl}>{item.label}</a> <br />
           Záznam vytvořen v
@@ -62,6 +67,19 @@ function RegistrationList({ messages }: {
   );
 }
 
-function dateDescending(left: MessageItem, right: MessageItem) {
-  return right.createdAt.getTime() - left.createdAt.getTime();
+function Pagination({ pagination }: { pagination: PaginationState }) {
+  return (
+    <nav aria-label="Stránkování">
+      <gov-pagination
+        total={String(pagination.totalRecords)}
+        current={String(pagination.currentPage)}
+        page-size={pagination.pageSize}
+        wcag-label="Stránkování pro registrační záznamy"
+        wcag-select-label="Vybrat stránku"
+        link="?str%C3%A1nka&#x3D;{PAGE}"
+      >
+      </gov-pagination>
+
+    </nav>
+  );
 }

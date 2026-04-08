@@ -1,6 +1,16 @@
 import { HeaderBrandingState, HeaderNavigationState } from "../../components";
 import { RegistrationSource, RegistrationType } from "../../registration";
 
+export interface PaginationState {
+
+  pageSize: number;
+
+  currentPage: number;
+
+  totalRecords: number;
+
+}
+
 export interface RegistrationListGetState {
 
   branding: HeaderBrandingState;
@@ -10,6 +20,8 @@ export interface RegistrationListGetState {
   createRegistrationUrl: string;
 
   messages: MessageItem[];
+
+  pagination: PaginationState;
 
 }
 

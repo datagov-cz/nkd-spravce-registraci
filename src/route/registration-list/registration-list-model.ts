@@ -3,13 +3,11 @@ import { RegistrationSource, RegistrationType } from "../../registration";
 
 export interface PaginationState {
 
+  pageSize: number;
+
   currentPage: number;
 
-  totalPages: number;
-
-  prevPageUrl: string | null;
-
-  nextPageUrl: string | null;
+  totalRecords: number;
 
 }
 

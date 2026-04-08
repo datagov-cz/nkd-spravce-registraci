@@ -17,7 +17,7 @@ export function handleRegistrationListGet(
 ) {
   const user = request.user;
   const query = request.query as Record<string, string>;
-  const rawPage = parseInt(query["strana"] ?? "1", 10);
+  const rawPage = parseInt(query["stránka"] ?? "1", 10);
   const currentPage = Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1;
 
   const allMessages = repository.listRegistrations(user.entity.identifier);
@@ -30,10 +30,9 @@ export function handleRegistrationListGet(
   const pageItems = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const pagination: PaginationState = {
-    currentPage: safePage,
-    totalPages,
-    prevPageUrl: safePage > 1 ? route.listRegistrationWithPage(safePage - 1) : null,
-    nextPageUrl: safePage < totalPages ? route.listRegistrationWithPage(safePage + 1) : null,
+    currentPage: Number(safePage),
+    pageSize: PAGE_SIZE,
+    totalRecords: sorted.length,
   };
 
   const state = createState(route, user, pageItems, pagination);

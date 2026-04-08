@@ -26,9 +26,7 @@ function RegistrationListGetViewHtml(
         ) : (
           <>
             <RegistrationList messages={state.messages} />
-            {state.pagination.totalPages > 1 && (
-              <Pagination pagination={state.pagination} />
-            )}
+            <Pagination pagination={state.pagination} />
           </>
         )}
       </gov-container>
@@ -70,12 +68,18 @@ function RegistrationList({ messages }: {
 }
 
 function Pagination({ pagination }: { pagination: PaginationState }) {
-  const { prevPageUrl, nextPageUrl, currentPage, totalPages } = pagination;
   return (
-    <nav aria-label="Stránkování" style="display: flex; gap: 1rem; margin-top: 1rem; align-items: center;">
-      {prevPageUrl && <a href={prevPageUrl}>← Předchozí</a>}
-      <span>Strana {currentPage} z {totalPages}</span>
-      {nextPageUrl && <a href={nextPageUrl}>Další →</a>}
+    <nav aria-label="Stránkování">
+      <gov-pagination
+        total={String(pagination.totalRecords)}
+        current={String(pagination.currentPage)}
+        page-size={pagination.pageSize}
+        wcag-label="Stránkování pro registrační záznamy"
+        wcag-select-label="Vybrat stránku"
+        link="?str%C3%A1nka&#x3D;{PAGE}"
+      >
+      </gov-pagination>
+
     </nav>
   );
 }

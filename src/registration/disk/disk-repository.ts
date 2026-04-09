@@ -143,8 +143,11 @@ class DefaultDiskRepository implements DiskRepository {
   private createIdentifier(): string {
     let identifier: string;
     do {
-      const hex = randomBytes(4).toString("hex");
-      identifier = "00-" + hex.slice(0, 4) + "-" + hex.slice(4, 8);
+      const hex = randomBytes(12).toString("hex");
+      identifier =
+        "01-" + hex.slice(0, 4) +
+        "-" + hex.slice(4, 8) +
+        "-" + hex.slice(8, 12);
     } while (this.identifiers.has(identifier));
     this.identifiers.add(identifier);
     return identifier;

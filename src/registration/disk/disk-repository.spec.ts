@@ -18,6 +18,7 @@ describe("createDiskRepository", () => {
 
     expect(repository.listRegistrations("17651921")).toStrictEqual([]);
 
+    const now = Date.now();
     const content = `{
   "@context": "https://ofn.gov.cz/rozhraní-katalogů-otevřených-dat/2021-01-11/kontexty/rozhraní-katalogů-otevřených-dat.jsonld",
   "iri": "https://data.gov.cz/zdroj/datové-sady/00283924/997020085",
@@ -27,7 +28,7 @@ describe("createDiskRepository", () => {
   }
 }`;
 
-    await repository.createRegistration("17651921", "the-one", content);
+    await repository.createRegistration(now, "17651921", "the-one", content);
 
     const registrations = await repository.listRegistrations("17651921");
     expect(registrations.length).toBe(1);

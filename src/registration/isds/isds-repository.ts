@@ -151,7 +151,7 @@ class DefaultIsdsRepository implements IsdsRepository {
       type: attachment.type,
       source: RegistrationSource.ISDS,
       createdAt: message.receivedAt,
-      identifier: "isds-" + message.messageIdentifier,
+      identifier: message.messageIdentifier,
       organization,
       attachmentPath,
       label,

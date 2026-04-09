@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { FileSystemService } from "../../file-system";
 import {
   createStatementRdfBuilder,
@@ -66,13 +67,6 @@ class DefaultDiskRepository implements DiskRepository {
 
   readonly attachmentsPath: string;
 
-  /**
-   * We know we run as a single application.
-   * We use this to number new registrations.
-   * Combined with time-based identifier it should be fine.
-   */
-  counter: number = 0;
-
   constructor(
     fileSystem: FileSystemService,
     messagesPath: string,
@@ -113,7 +107,7 @@ class DefaultDiskRepository implements DiskRepository {
       throw new Error("Invalid attachment.");
     }
     //
-    const identifier = this.createIdentifier(createdAt);
+    const identifier = this.createIdentifier();
     const attachmentFileName = identifier + ".jsonld";
     // Write attachment
     const attachmentPath = this.attachmentsPath + "/" + attachmentFileName;
@@ -144,9 +138,9 @@ class DefaultDiskRepository implements DiskRepository {
     return entry;
   }
 
-  private createIdentifier(createdAt: number): string {
-    let counter = String(++this.counter).padStart(3, "0");
-    return "registration-manager-" + createdAt.toString() + "-" + counter;
+  private createIdentifier(): string {
+    const hex = randomBytes(4).toString("hex");
+    return "00-" + hex.slice(0, 4) + "-" + hex.slice(4, 8);
   }
 
   async synchronize(): Promise<void> {

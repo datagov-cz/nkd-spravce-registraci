@@ -61,6 +61,8 @@ class DefaultDiskRepository implements DiskRepository {
 
   readonly messages: RegistrationItem[] = [];
 
+  readonly identifiers: Set<string> = new Set();
+
   readonly fileSystem: FileSystemService;
 
   readonly messagesPath: string;
@@ -139,8 +141,13 @@ class DefaultDiskRepository implements DiskRepository {
   }
 
   private createIdentifier(): string {
-    const hex = randomBytes(4).toString("hex");
-    return "00-" + hex.slice(0, 4) + "-" + hex.slice(4, 8);
+    let identifier: string;
+    do {
+      const hex = randomBytes(4).toString("hex");
+      identifier = "00-" + hex.slice(0, 4) + "-" + hex.slice(4, 8);
+    } while (this.identifiers.has(identifier));
+    this.identifiers.add(identifier);
+    return identifier;
   }
 
   async synchronize(): Promise<void> {
@@ -149,6 +156,7 @@ class DefaultDiskRepository implements DiskRepository {
       try {
         const message = await this.loadMessage(messagePath);
         // This can be slow once there are many messages.
+        this.identifiers.add(message.identifier);
         const index = this.messages.findIndex(
           item => item.identifier === message.identifier);
         if (index === -1) {

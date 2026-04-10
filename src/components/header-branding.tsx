@@ -11,7 +11,7 @@ export function HeaderBranding({ state }: {
   return (
     <gov-branding>
       <h1 class="heading">
-        Správce registrací národního katalogu dat
+        Správce registrací národního katalogu otevřených dat
       </h1>
       <div style="align-items: center;">
         <div>

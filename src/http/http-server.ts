@@ -7,7 +7,6 @@ import fastifyCors from "@fastify/cors";
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session"
 import fastifyHelmet from "@fastify/helmet"
-import fastifyMultipart from "@fastify/multipart";
 import fastifyFormBody from "@fastify/formbody";
 
 import { logger } from "../application/logger";
@@ -42,9 +41,6 @@ export async function createHttpServer(
   //   // Use for all paths.
   //   global: true,
   // });
-
-  // Multipart - https://github.com/fastify/fastify-multipart
-  server.register(fastifyMultipart);
 
   // Cookies - https://www.npmjs.com/package/@fastify/cookie
   server.register(fastifyCookie);

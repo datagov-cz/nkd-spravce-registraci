@@ -1,5 +1,6 @@
 import fastifyStatic from "@fastify/static";
 import fastifyProxy from "@fastify/http-proxy";
+import fastifyMultipart from "@fastify/multipart";
 
 import { RegistrationService } from "../registration";
 import { HttpServer } from "../http";
@@ -48,11 +49,22 @@ export function registerRoutes(
       route, req, res)),
   });
 
-  server.route({
-    method: "POST",
-    url: route.createRegistrationInternal(),
-    handler: checkRole(route, (req, res) => handleCreateRegistrationPost(
-      repository, route, req, res)),
+  // We register as a plugin.
+  // Thus we can can apply fastify-multipart routes in this plugin.
+  // Otherwise we would get a warning message:
+  // @fastify/reply-from might not behave as expected when used with @fastify/multipart
+  server.register((fastify) => {
+
+    // Multipart - https://github.com/fastify/fastify-multipart
+    fastify.register(fastifyMultipart);
+
+    fastify.route({
+      method: "POST",
+      url: route.createRegistrationInternal(),
+      handler: checkRole(route, (req, res) => handleCreateRegistrationPost(
+        repository, route, req, res)),
+    });
+
   });
 
   server.register(fastifyProxy, {

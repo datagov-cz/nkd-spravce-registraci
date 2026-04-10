@@ -59,6 +59,7 @@ function RegistrationList({ messages }: {
             {item.createdAt.toLocaleString("cs-CZ", {
               dateStyle: "full",
               timeStyle: "short",
+              timeZone: "Europe/Prague",
             })}
           </time>
         </li>
@@ -68,6 +69,9 @@ function RegistrationList({ messages }: {
 }
 
 function Pagination({ pagination }: { pagination: PaginationState }) {
+  if (pagination.totalRecords < pagination.pageSize) {
+    return null;
+  }
   return (
     <nav aria-label="Stránkování">
       <gov-pagination

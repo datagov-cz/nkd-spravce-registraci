@@ -42,13 +42,16 @@ import { createSparqlService } from "./sparql";
   registerRoutes(configuration, httpServer, repository, route);
 
   // Initial synchronization — non-blocking, server can start without data.
-  isdsRepository.synchronize().catch((error) => {
-    logger.error({ error }, "ISDS initial synchronization failed.");
+  repository.synchronize().catch((error) => {
+    logger.error({ error }, "Initial synchronization failed.");
   });
 
   // Periodic synchronization.
   const syncIntervalMs = configuration.isds.syncIntervalSeconds * 1_000;
   if (syncIntervalMs > 0) {
+    logger.info({
+      interval: configuration.isds.syncIntervalSeconds
+    }, "Enabling ISDS synchronization for given interval (seconds).");
     setInterval(() => {
       isdsRepository.synchronize().catch((error) => {
         logger.error({ error }, "ISDS periodic synchronization failed.");

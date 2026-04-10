@@ -80,9 +80,9 @@ const ConfigurationSchema = z.object({
     attachmentsPath: z.string(),
     /**
      * Interval in seconds between automatic ISDS synchronizations.
-     * Set to 0 to disable periodic sync. Defaults to 60.
+     * Set to 0 to disable periodic sync.
      */
-    syncIntervalSeconds: z.coerce.number().nonnegative().default(60),
+    syncIntervalSeconds: z.coerce.number().nonnegative().default(60 * 5),
   }),
   repository: z.object({
     /**

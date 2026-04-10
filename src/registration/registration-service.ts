@@ -27,7 +27,6 @@ export interface RegistrationService {
   createRegistration(
     createdAt: number,
     organization: string,
-    username: string,
     attachment: string,
   ): Promise<RegistrationItem>
 
@@ -65,11 +64,9 @@ class DefaultRegistrationService implements RegistrationService {
   }
 
   async createRegistration(
-    createdAt: number,
-    organization: string, username: string, attachment: string,
+    createdAt: number, organization: string, attachment: string,
   ): Promise<RegistrationItem> {
-    return this.disk.createRegistration(
-      createdAt, organization, username, attachment);
+    return this.disk.createRegistration(createdAt, organization, attachment);
   }
 
   async synchronize(): Promise<void> {

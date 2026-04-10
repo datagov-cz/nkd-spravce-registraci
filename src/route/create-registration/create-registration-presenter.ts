@@ -47,7 +47,7 @@ export async function handleCreateRegistrationPost(
   const now = Date.now();
   for (const attachment of attachments) {
     await repository.createRegistration(
-      now, user.entity.identifier, user.login, attachment);
+      now, user.entity.identifier, attachment);
   }
 
   // We need to encode the value for a redirect.

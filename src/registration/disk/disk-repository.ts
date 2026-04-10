@@ -46,7 +46,6 @@ export interface DiskRepository {
   createRegistration(
     createdAt: number,
     organization: string,
-    username: string,
     attachment: string,
   ): Promise<RegistrationItem>
 
@@ -101,7 +100,6 @@ class DefaultDiskRepository implements DiskRepository {
   async createRegistration(
     createdAt: number,
     organization: string,
-    username: string,
     attachmentContent: string,
   ): Promise<RegistrationItem> {
     const attachment = await parseIsdsAttachment(attachmentContent);
@@ -118,7 +116,6 @@ class DefaultDiskRepository implements DiskRepository {
     const message: DiskMessage = {
       identifier,
       organization,
-      username,
       createdAt: new Date(createdAt),
       attachmentFileName,
     };

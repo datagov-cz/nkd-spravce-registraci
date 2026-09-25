@@ -41,19 +41,23 @@ export async function handleCreateRegistrationPost(
 ) {
   const user = request.user;
   const attachments = await readAttachments(request);
-  if (attachments.length === 0) {
+  if (attachments.length !== 1) {
     response.code(HttpStatusCode.BadRequest).send();
     return;
   }
 
-  // For each attachment we create a new registration record.
+  // Create registration record.
+  const attachment = attachments[0];
   const now = Date.now();
-  for (const attachment of attachments) {
+  try {
     await repository.createRegistration(
       now,
       user.entity.identifier,
       attachment,
     );
+  } catch {
+    response.code(HttpStatusCode.BadRequest).send();
+    return;
   }
 
   // We need to encode the value for a redirect.

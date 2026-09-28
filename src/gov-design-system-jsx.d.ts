@@ -18,6 +18,7 @@ declare module "preact" {
       "gov-icon": GovElementAttributes;
       "gov-theme-switch": GovElementAttributes;
       "gov-container": GovElementAttributes;
+      "gov-error-code": GovElementAttributes;
       "gov-grid": GovElementAttributes;
       "gov-grid-item": GovElementAttributes;
       "gov-tile": GovElementAttributes;

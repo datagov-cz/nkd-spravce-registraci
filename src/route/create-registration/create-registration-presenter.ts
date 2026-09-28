@@ -8,6 +8,7 @@ import {
   createHeaderNavigationState,
 } from "../../components";
 import { CreateRegistrationGetState } from "./create-registration-model";
+import { handleStatus400 } from "../status-400/status-400-presenter";
 
 export async function handleCreateRegistrationGet(
   route: RouteService,
@@ -42,7 +43,7 @@ export async function handleCreateRegistrationPost(
   const user = request.user;
   const attachments = await readAttachments(request);
   if (attachments.length !== 1) {
-    response.code(HttpStatusCode.BadRequest).send();
+    handleStatus400(route, request, response, route.createRegistration());
     return;
   }
 
@@ -56,7 +57,7 @@ export async function handleCreateRegistrationPost(
       attachment,
     );
   } catch {
-    response.code(HttpStatusCode.BadRequest).send();
+    handleStatus400(route, request, response, route.createRegistration());
     return;
   }
 

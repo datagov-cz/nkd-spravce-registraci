@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { FileSystemService } from "../../file-system";
-import { createStatementRdfBuilder, createStringN3RdfWriter } from "../../rdf";
+import { createStatementRdfBuilder, createN3Writer } from "../../rdf";
 import { parseIsdsAttachment } from "../isds";
 import { IsdsAttachment } from "../isds/isds-attachment";
 import {
@@ -117,11 +117,11 @@ class DefaultDiskRepository implements DiskRepository {
     };
     const builder = createStatementRdfBuilder();
     writeDiskMessage(builder, message);
-    const writer = createStringN3RdfWriter({
+    const writer = createN3Writer({
       prefixes: { nkod: "https://data.gov.cz/slovník/nkod/" },
       pretty: true,
     });
-    writer.addStatements(builder.build());
+    writer.addQuads(builder.build());
     const messageContent = await writer.asString();
     // Write message
     const messagePath = this.messagesPath + "/" + identifier + ".ttl";

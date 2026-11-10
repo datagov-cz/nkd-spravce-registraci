@@ -1,5 +1,5 @@
 import {
-  createStringN3RdfReader,
+  createN3Reader,
   createResourceCollector,
   createResourceReader,
   ResourceReader,
@@ -9,7 +9,7 @@ export async function parseIsdsMessage(
   content: string,
 ): Promise<IsdsMessage | null> {
   const collector = createResourceCollector();
-  const n3Reader = createStringN3RdfReader();
+  const n3Reader = createN3Reader();
   await n3Reader.parse(content, collector);
   const reader = createResourceReader(collector.result());
   return asIsdsMessage(reader);

@@ -1,8 +1,8 @@
 import { describe, test, expect } from "vitest";
-import { createStringN3RdfReader } from "./rdf-parser-n3";
-import { collectToArray } from "../rdf-reader";
+import { createN3Reader } from "./n3-parser.ts";
+import { collectToArray } from "../rdf-reader.ts";
 
-describe("createStringN3RdfReader", () => {
+describe("StringN3RdfReader", () => {
   /**
    * Parse simple turtle file fragment.
    */
@@ -29,7 +29,7 @@ describe("createStringN3RdfReader", () => {
     //
 
     const collector = collectToArray();
-    const reader = createStringN3RdfReader();
+    const reader = createN3Reader();
     await reader.parse(input, collector);
     const actual = collector.result();
 

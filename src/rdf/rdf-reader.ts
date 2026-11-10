@@ -1,34 +1,27 @@
-import type { Node, Term, Statement } from "./rdf-model";
+import { Quad } from "@rdfjs/types";
 
 export interface RdfReader<InputType> {
-  /**
-   * @throws
-   */
+  /** @throws */
   parse(input: InputType, collector: RdfCollector): Promise<void>;
 }
 
 export interface RdfCollector {
-  consume(subject: Node | null, predicate: string, object: Term | null): void;
+  quad(quad: Quad): void;
 }
 
-/**
- * Collect RDF statements into an array.
- */
+/** Collect quads into an array. */
 export function collectToArray(): CollectToArray {
-  const statements: Statement[] = [];
+  const collector: Quad[] = [];
   return {
-    consume(subject, predicate, object) {
-      if (subject === null || object === null) {
-        return;
-      }
-      statements.push([subject, predicate, object]);
+    quad(quad) {
+      collector.push(quad);
     },
     result() {
-      return statements;
+      return collector;
     },
   };
 }
 
 interface CollectToArray extends RdfCollector {
-  result(): Statement[];
+  result(): Quad[];
 }

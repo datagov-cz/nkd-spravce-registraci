@@ -1,46 +1,14 @@
+import { NamedNode, BlankNode, Term } from "@rdfjs/types";
+
+/** Custom version of node with narrower definition. */
 export type Node = NamedNode | BlankNode;
 
-export type Term = Node | Literal;
-
-export interface NamedNode {
-  termType: "NamedNode";
-
-  value: string;
+export function isNode(value: Term): value is Node {
+  return value.termType === "NamedNode" || value.termType === "BlankNode";
 }
 
-export function isNamedNode(term: Term): term is NamedNode {
-  return term.termType === "NamedNode";
+export function isNamedNode(value: Term): value is NamedNode {
+  return value.termType === "NamedNode";
 }
-
-export interface BlankNode {
-  termType: "BlankNode";
-
-  value: string;
-}
-
-export interface Literal {
-  termType: "Literal";
-
-  /**
-   * Text value of the literal.
-   */
-  value: string;
-
-  /**
-   * Optional information about a language.
-   */
-  language: string | null;
-
-  datatype: NamedNode;
-}
-
-export function isLiteral(term: Term): term is Literal {
-  return term.termType === "Literal";
-}
-
-/**
- * Statement in subject, predicate, object format.
- */
-export type Statement = [Node, string, Term];
 
 export type LanguageString = { [language: string]: string };

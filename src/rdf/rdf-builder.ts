@@ -1,6 +1,9 @@
-import { LanguageString, Literal, NamedNode, Statement } from "./rdf-model";
+import type { LanguageString } from "./rdf-model.ts";
 
-export function createStatementRdfBuilder(): RdfBuilder<Statement[]> {
+import type { NamedNode, Quad, Quad_Object } from "@rdfjs/types";
+import DataFactory from "@rdfjs/data-model";
+
+export function createStatementRdfBuilder(): RdfBuilder<Quad[]> {
   return new DefaultRdfBuilder();
 }
 
@@ -26,22 +29,26 @@ export interface RdfBuilder<ResultType> {
   build(): ResultType;
 }
 
-class DefaultRdfBuilder implements RdfBuilder<Statement[]> {
-  readonly statement: Statement[] = [];
+class DefaultRdfBuilder implements RdfBuilder<Quad[]> {
+  readonly quad: Quad[] = [];
 
   addType(subject: string, type: string): this {
-    this.statement.push([this.iri(subject), RDFS.type, this.iri(type)]);
+    this.push(subject, RDFS.type, this.iri(type));
     return this;
   }
 
   private iri(value: string): NamedNode {
-    return { termType: "NamedNode", value };
+    return DataFactory.namedNode(value);
+  }
+
+  private push(subject: string, predicate: string, object: Quad_Object) {
+    this.quad.push(DataFactory.quad(
+      this.iri(subject), this.iri(predicate), object));
   }
 
   addIris(subject: string, predicate: string, iris: string[]): this {
-    const s = this.iri(subject);
     for (const value of iris) {
-      this.statement.push([s, predicate, this.iri(value)]);
+      this.push(subject, predicate, this.iri(value));
     }
     return this;
   }
@@ -50,7 +57,7 @@ class DefaultRdfBuilder implements RdfBuilder<Statement[]> {
     if (iri === null) {
       return this;
     }
-    this.statement.push([this.iri(subject), predicate, this.iri(iri)]);
+    this.push(subject, predicate, this.iri(iri));
     return this;
   }
 
@@ -63,15 +70,7 @@ class DefaultRdfBuilder implements RdfBuilder<Statement[]> {
       return this;
     }
     for (const [language, value] of Object.entries(string)) {
-      this.statement.push([
-        this.iri(subject),
-        predicate,
-        {
-          termType: "Literal",
-          value,
-          language,
-        } as Literal,
-      ]);
+      this.push(subject, predicate, DataFactory.literal(value, language));
     }
     return this;
   }
@@ -79,63 +78,52 @@ class DefaultRdfBuilder implements RdfBuilder<Statement[]> {
   addLiteral(
     subject: string,
     predicate: string,
-    literal: string | boolean | number | null,
+    literal: Date | string | boolean | number | null,
   ): this {
     if (literal === null) {
       return this;
     }
     if (typeof literal === "boolean") {
-      this.statement.push([
-        this.iri(subject),
-        predicate,
-        {
-          termType: "Literal",
-          value: String(literal),
-          datatype: this.iri(XSD.boolean),
-        } as Literal,
-      ]);
+      this.push(subject, predicate,
+        DataFactory.literal(String(literal), this.iri(XSD.boolean)));
     } else if (typeof literal === "string") {
-      this.statement.push([
-        this.iri(subject),
-        predicate,
-        {
-          termType: "Literal",
-          value: String(literal),
-          datatype: this.iri(XSD.string),
-        } as Literal,
-      ]);
+      this.push(subject, predicate,
+        DataFactory.literal(literal, this.iri(XSD.string)));
     } else if (Number.isInteger(literal)) {
-      this.statement.push([
-        this.iri(subject),
-        predicate,
-        {
-          termType: "Literal",
-          value: String(literal),
-          datatype: this.iri(XSD.integer),
-        } as Literal,
-      ]);
-    } else if (typeof (literal as any).toISOString === "function") {
-      this.statement.push([
-        this.iri(subject),
-        predicate,
-        {
-          termType: "Literal",
-          value: (literal as any).toISOString(),
-          datatype: this.iri(XSD.date),
-        } as Literal,
-      ]);
+      this.push(subject, predicate,
+        DataFactory.literal(String(literal), this.iri(XSD.integer)));
+    } else if (typeof literal === "number") {
+      this.push(subject, predicate,
+        DataFactory.literal(doubleToString(literal), this.iri(XSD.double)));
+    } else if (literal instanceof Date) {
+      // Keep only the date part, as xsd:date has no time.
+      this.push(subject, predicate,
+        DataFactory.literal(literal.toISOString().substring(0, 10), this.iri(XSD.date)));
     } else {
       throw new Error("Unsupported operation exception.");
     }
     return this;
   }
 
-  build(): Statement[] {
-    return this.statement;
+  build(): Quad[] {
+    return this.quad;
   }
 }
 
-const RDFS_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+/** Convert number to xsd:double lexical form. */
+function doubleToString(value: number): string {
+  if (Number.isNaN(value)) {
+    return "NaN";
+  } else if (value === Infinity) {
+    return "INF";
+  } else if (value === -Infinity) {
+    return "-INF";
+  } else {
+    return String(value);
+  }
+}
+
+const RDFS_PREFIX ="http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
 const RDFS = {
   type: RDFS_PREFIX + "type",

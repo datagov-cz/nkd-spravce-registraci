@@ -1,7 +1,7 @@
-import { Statement } from "./rdf-model";
+import { Quad } from "@rdfjs/types";
 
 export interface RdfWriter {
-  addStatements(statements: Statement[]): void;
+  addQuads(quads: Quad[]): void;
 }
 
 /**

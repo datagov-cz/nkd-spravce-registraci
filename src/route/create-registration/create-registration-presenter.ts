@@ -9,6 +9,7 @@ import {
 } from "../../components";
 import { CreateRegistrationGetState } from "./create-registration-model";
 import { handleStatus400 } from "../status-400/status-400-presenter";
+import { logger } from "../../application";
 
 export async function handleCreateRegistrationGet(
   route: RouteService,
@@ -56,7 +57,9 @@ export async function handleCreateRegistrationPost(
       user.entity.identifier,
       attachment,
     );
-  } catch {
+  } catch (error) {
+    logger.error({ attachment, err: error },
+      "Can not create registration from user request.");
     handleStatus400(route, request, response, route.createRegistration());
     return;
   }

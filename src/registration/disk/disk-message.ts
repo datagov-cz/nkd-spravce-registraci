@@ -1,7 +1,7 @@
 import {
   createResourceCollector,
   createResourceReader,
-  createStringN3RdfReader,
+  createN3Reader,
   RdfBuilder,
   ResourceReader,
 } from "../../rdf";
@@ -10,7 +10,7 @@ export async function parseDiskMessage(
   content: string,
 ): Promise<DiskMessage | null> {
   const collector = createResourceCollector();
-  const n3Reader = createStringN3RdfReader();
+  const n3Reader = createN3Reader();
   await n3Reader.parse(content, collector);
   const reader = createResourceReader(collector.result());
   return asDiskMessage(reader);

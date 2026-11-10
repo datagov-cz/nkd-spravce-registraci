@@ -52,7 +52,7 @@ export interface IsdsAttachment {
 function parseWithdrawDataset(dataset: SubjectReader): IsdsAttachment {
   return {
     type: RegistrationType.WithdrawDataset,
-    iri: dataset.identifier().value,
+    iri: dataset.id().value,
     label: null,
   };
 }
@@ -68,7 +68,7 @@ function parseCreateDataset(dataset: SubjectReader): IsdsAttachment {
 function parseWithdrawCatalog(catalog: SubjectReader): IsdsAttachment {
   return {
     type: RegistrationType.WithdrawCatalog,
-    iri: catalog.identifier().value,
+    iri: catalog.id().value,
     label: null,
   };
 }

@@ -38,16 +38,19 @@ import { createSparqlService } from "./sparql";
   const authentication = useMockAuthentication
     ? createMockAuthenticationService()
     : createAuthenticationService(
-        configuration.authorization.requiredActivityRoleCode,
-      );
+      configuration.authorization.requiredActivityRoleCode,
+    );
 
   const route = createRouteService(configuration.http.baseUrl);
   const httpServer = await createHttpServer(configuration, authentication);
   registerRoutes(configuration, httpServer, repository, route);
 
   // Initial synchronization — non-blocking, server can start without data.
+  logger.info("Initial synchronization is about to start.")
   repository.synchronize().catch((error) => {
     logger.error({ error }, "Initial synchronization failed.");
+  }).then(() => {
+    logger.info("Initial synchronization has been finished.");
   });
 
   // Periodic synchronization.

@@ -1,9 +1,8 @@
 import N3 from "n3";
 
-import type { Node, BlankNode, Literal, NamedNode, Term } from "../rdf-model";
-import type { RdfCollector, RdfReader } from "../rdf-reader";
+import type { RdfCollector, RdfReader } from "../rdf-reader.ts";
 
-export function createStringN3RdfReader(): RdfReader<string> {
+export function createN3Reader(): RdfReader<string> {
   return new StringN3RdfReader();
 }
 
@@ -34,58 +33,11 @@ function createCallback(
       accept();
       return;
     }
-    const subject = convertSubject(quad.subject);
-    const predicate = quad.predicate.value;
-    const object = convertObject(quad.object);
-    collector.consume(subject, predicate, object);
+    collector.quad(quad);
   };
 }
 
-function convertSubject(value: N3.Quad_Subject): Node | null {
-  switch (value.termType) {
-    case "NamedNode":
-      return {
-        termType: "NamedNode",
-        value: value.value,
-      } as NamedNode;
-    case "BlankNode":
-      return {
-        termType: "BlankNode",
-        value: value.value,
-      } as BlankNode;
-    default:
-      console.error("Unknown value when parsing using n3:", value);
-      return null;
-  }
-}
-
-function convertObject(value: N3.Quad_Object): Term | null {
-  switch (value.termType) {
-    case "NamedNode":
-      return {
-        termType: "NamedNode",
-        value: value.value,
-      } as NamedNode;
-    case "BlankNode":
-      return {
-        termType: "BlankNode",
-        value: value.value,
-      } as BlankNode;
-    case "Literal":
-      return {
-        termType: "Literal",
-        value: value.value,
-        language: value.language === "" ? null : value.language,
-        datatype: value.datatype,
-      } as Literal;
-    case "Variable":
-    default:
-      console.error("Unknown value when parsing using n3:", value);
-      return null;
-  }
-}
-
-export function createStreamN3RdfReader(): RdfReader<Stream> {
+export function createStreamN3Reader(): RdfReader<Stream> {
   return new StreamN3RdfReader();
 }
 
@@ -109,7 +61,7 @@ type Stream = ReadableStreamDefaultReader<Uint8Array>;
 class N3StreamReader implements RdfReader<Stream> {
   protected readonly parser: N3.Parser;
 
-  protected readonly consumer: RdfCollector;
+  protected readonly collector: RdfCollector;
 
   protected readonly decoder = new TextDecoder("utf-8");
 
@@ -123,9 +75,9 @@ class N3StreamReader implements RdfReader<Stream> {
    */
   protected onEnd?: () => void;
 
-  constructor(consumer: RdfCollector, options?: N3.ParserOptions) {
+  constructor(collector: RdfCollector, options?: N3.ParserOptions) {
     this.parser = new N3.Parser(options);
-    this.consumer = consumer;
+    this.collector = collector;
     this.initializeParser();
   }
 
@@ -137,10 +89,7 @@ class N3StreamReader implements RdfReader<Stream> {
         throw error;
       }
       if (quad !== null) {
-        const subject = convertSubject(quad.subject);
-        const predicate = quad.predicate.value;
-        const object = convertObject(quad.object);
-        this.consumer.consume(subject, predicate, object);
+        this.collector.quad(quad);
       }
       // We do not handle end of the stream here.
     };

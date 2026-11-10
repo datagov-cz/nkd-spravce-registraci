@@ -1,10 +1,10 @@
-import type { BlankNode, NamedNode, Term } from "../rdf-model";
+import { NamedNode, BlankNode, Term } from "@rdfjs/types";
 
 /**
  * A single object representation of a resource with all its properties.
  */
 export interface Resource {
-  identifier: NamedNode | BlankNode;
+  id: NamedNode | BlankNode;
 
   properties: { [property: string]: Term[] };
 }

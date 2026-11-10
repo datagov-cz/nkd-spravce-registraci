@@ -73,7 +73,8 @@ export function HeaderBranding({ state }: { state: HeaderBrandingState }) {
               color="primary"
               size="m"
             ></gov-icon>
-            {state.userName}
+            {state.userName}<br/>
+            {state.organizationName}
           </gov-button>
           <gov-theme-switch
             size="m"

@@ -42,7 +42,18 @@ export async function handleCreateRegistrationPost(
   response: FastifyReply,
 ) {
   const user = request.user;
-  const attachments = await readAttachments(request);
+
+  let attachments: string[];
+  try {
+    attachments = await readAttachments(request);
+  } catch (error) {
+    // Invalid client input, e.g. multipart limits reached
+    // (FST_PARTS_LIMIT, FST_FILES_LIMIT, FST_REQ_FILE_TOO_LARGE)
+    // or a malformed body.
+    logger.warn({ err: error }, "Can not read attachments from user request.");
+    handleStatus400(route, request, response, route.createRegistration());
+    return;
+  }
   if (attachments.length !== 1) {
     handleStatus400(route, request, response, route.createRegistration());
     return;

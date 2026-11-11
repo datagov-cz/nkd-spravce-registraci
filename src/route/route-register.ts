@@ -61,7 +61,21 @@ export function registerRoutes(
   // @fastify/reply-from might not behave as expected when used with @fastify/multipart
   server.register((fastify) => {
     // Multipart - https://github.com/fastify/fastify-multipart
-    fastify.register(fastifyMultipart);
+    // A registration is a single file; fail early on anything bigger.
+    fastify.register(fastifyMultipart, {
+      limits: {
+        // Accept at most 12 parts in the multipart.
+        // Tha main case is a single file so this should be more then enough.
+        parts: 64,
+        // We support only one file upload.
+        files: 1,
+        // We are not using any fields, but this should be safe
+        // for future.
+        fields: 32,
+        // Maximum registration file size.
+        fileSize: 1024 * 1024,
+      },
+    });
 
     fastify.route({
       method: "POST",
